@@ -109,11 +109,11 @@ public class EmailService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-	@Value("${file.Email-Files}")
-	private String emailFileLocation;
-
-	@Value("${file.imagepath-dir}")
-	private String logoimageLocation;
+	/*
+	 * @Value("${file.Email-Files}") private String emailFileLocation;
+	 * 
+	 * @Value("${file.imagepath-dir}") private String logoimageLocation;
+	 */
 
 //	@Value("${file.Email-Files-test}")
 //    private String emailFileLocationTest;
@@ -121,17 +121,15 @@ public class EmailService {
 //	@Value("${file.imagepathtest-dir}")
 //    private String logoimageLocationTest;
 
-	@Value("${file.awsORtest}")
-	private String awsORtest;
-
-	@Value("${from.mail.id}")
-	private String fromMailID;
-
-	@Value("${to.mail.id}")
-	private String toMailId;
-
-	@Value("${CC.Mail.id}")
-	private String CCMailid;
+	/*
+	 * @Value("${file.awsORtest}") private String awsORtest;
+	 * 
+	 * @Value("${from.mail.id}") private String fromMailID;
+	 * 
+	 * @Value("${to.mail.id}") private String toMailId;
+	 * 
+	 * @Value("${CC.Mail.id}") private String CCMailid;
+	 */
 
 	/*
 	 * void sendQueryMailFromLandingPage(SendQueryFromHomeRequest

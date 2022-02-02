@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService{
 	 @Autowired
 	AuthenticationManager authenticationManager;
 	
-	@Autowired
+	@Autowired 
 	UserRepository userRepository;
 	
 	@Autowired
@@ -60,8 +60,9 @@ public class AuthServiceImpl implements AuthService{
 //	@Autowired
 	//VerifierService verifierService;
 	
-	@Autowired
-	EmailService emailService;
+	/*
+	 * @Autowired EmailService emailService;
+	 */
 	
 	@Autowired
 	RefreshTokenService refreshTokenService;
@@ -69,8 +70,9 @@ public class AuthServiceImpl implements AuthService{
 	BaseResponse  baseResponse = null;
     Base64.Decoder decoder = Base64.getDecoder();  
     
-	 @Value("${file.url-dir}")
-     private String url;
+	/*
+	 * @Value("${file.url-dir}") private String url;
+	 */
 	 
 
 	@Override
@@ -106,13 +108,12 @@ public class AuthServiceImpl implements AuthService{
 		
 	//	System.out.println("===masterEntity======="+masterEntity.getEmailVerificationStatus());
 		 
-		 if(!masterEntity.getEmailVerificationStatus().equalsIgnoreCase("Verified"))
-		 {
-			 
-			//  msg = "Email is nor verified";
-			 throw new Exception("Email is not Verified!");
-		}
-		 
+		/*
+		 * if(!masterEntity.getEmailVerificationStatus().equalsIgnoreCase("Verified")) {
+		 * 
+		 * // msg = "Email is nor verified"; throw new
+		 * Exception("Email is not Verified!"); }
+		 */
 	
   
 		Authentication authentication = authenticationManager.authenticate(
