@@ -18,6 +18,8 @@ public class PartnerRequest {
 	private String logopath;
 	private String created_by;
 	private String updated_by;
+	private String url;
+	private String ccemailid;
 	private Long id;
 	
 	

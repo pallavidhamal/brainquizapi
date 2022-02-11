@@ -41,5 +41,11 @@ public class PartnerEntity  extends CreateUpdate{
 	@Column(name = "logoPath")
 	private String logoPath;
 	
+	@Column(name = "ccEmailId")
+	private String ccEmailId;
+	
+	@Column(name = "url")
+	private String url;
+	
 	
 }

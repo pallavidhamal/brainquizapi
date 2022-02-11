@@ -169,6 +169,8 @@ public class PartnerServiceImpl implements PartnerService {
 				partnerMasterEntity.setMobileNo(partnerEntity.getMobileno());
 				partnerMasterEntity.setWebsite(partnerEntity.getWebsite());										
 				partnerMasterEntity.setCreateby(partnerEntity.getCreated_by());
+				partnerMasterEntity.setUrl(partnerEntity.getUrl());
+				partnerMasterEntity.setCcEmailId(partnerEntity.getCcemailid());
 				partnerMasterEntity.setUpdatedate(new Date());
 			   
 			   partnerRepository.save(partnerMasterEntity);
