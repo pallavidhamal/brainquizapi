@@ -13,8 +13,10 @@ public class PartnerResponse {
 
 	private String partnername; 
 	private String website;
-	private String mobileno;
+	private String url;
 	private String companydetails; 
 	private String emailid;
+	private String ccemailid;
+	private String mobileno;
 	private String logopath;
 }

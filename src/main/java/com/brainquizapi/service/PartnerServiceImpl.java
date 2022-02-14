@@ -104,7 +104,9 @@ public class PartnerServiceImpl implements PartnerService {
 					partnerMasterEntity.setCompanyDetails(partnerRequest.getCompanydetails());					
 					partnerMasterEntity.setLogoPath("path");
 					partnerMasterEntity.setMobileNo(partnerRequest.getMobileno());
-					partnerMasterEntity.setWebsite(partnerRequest.getWebsite());										
+					partnerMasterEntity.setWebsite(partnerRequest.getWebsite());	
+					partnerMasterEntity.setUrl(partnerRequest.getUrl());
+					partnerMasterEntity.setCcEmailId(partnerRequest.getCcemailid());
 					partnerMasterEntity.setCreateby(partnerRequest.getCreated_by()); // Logged User Id 
 					partnerMasterEntity.setIsdeleted("N"); // By Default N	
 		
@@ -136,7 +138,9 @@ public class PartnerServiceImpl implements PartnerService {
 				response.setCompanydetails(entity.getCompanyDetails());					
 				response.setLogopath(entity.getLogoPath());
 				response.setMobileno(entity.getMobileNo());
-				response.setWebsite(entity.getWebsite());		
+				response.setWebsite(entity.getWebsite());	
+				response.setCcemailid(entity.getCcEmailId());
+				response.setUrl(entity.getUrl());
 				
 				
 				
