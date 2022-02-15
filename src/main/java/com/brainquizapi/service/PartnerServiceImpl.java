@@ -217,6 +217,17 @@ public class PartnerServiceImpl implements PartnerService {
 		return baseResponse;
 	}
 	
+	@Override
+	public PartnerEntity getPartnerById(Long id) {
+		
+		logger.info("*****PartnerServiceImpl getPartnerById*****"+id);
+		
+		Optional<PartnerEntity> partnerEntit  = partnerRepository.findById(id);
+		PartnerEntity partnerMasterEntity = partnerEntit.get();
+		
+		return partnerMasterEntity;
+	}
+	
 	
 }
 

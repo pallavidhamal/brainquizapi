@@ -18,14 +18,17 @@ import com.brainquizapi.model.AnswersEntity;
 import com.brainquizapi.model.AssessmentEntity;
 import com.brainquizapi.model.CategoryEntity;
 import com.brainquizapi.model.CreateUpdate;
+import com.brainquizapi.model.PartnerAssessmentMapEntity;
 import com.brainquizapi.model.PartnerEntity;
 import com.brainquizapi.model.QuestionEntity;
 import com.brainquizapi.repository.AssessmentRepository;
 import com.brainquizapi.repository.CategoryRepository;
+import com.brainquizapi.repository.PartnerAssessmentMapRepository;
 import com.brainquizapi.repository.PartnerRepository;
 import com.brainquizapi.request.AnswersVo;
 import com.brainquizapi.request.AssessmentRequest;
 import com.brainquizapi.request.CategoryVo;
+import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.request.QuestionsVo;
 import com.brainquizapi.response.AssessmentResponse;
@@ -35,12 +38,18 @@ public class AssessmentServiceImpl implements AssessmentService {
 
 	
 	private static final Logger logger = LoggerFactory.getLogger(PartnerServiceImpl.class);
+	
+	@Autowired
+	PartnerService partnerService;
 
 	 @Autowired
 	 AssessmentRepository assessmentRepository;
 	 
 	 @Autowired
 	 CategoryRepository categoryRepository;
+	 
+	 @Autowired
+	 PartnerAssessmentMapRepository partnerAssessmentMapRepository;
 	
 	@Override
 	public String addAssessment(AssessmentRequest assessmentRequest) throws Exception {
@@ -226,8 +235,28 @@ public class AssessmentServiceImpl implements AssessmentService {
 		
 		return resp;
 	}
-	
-	
-	
 
+	@Override
+	public String addPartnerAssessment(PartnerAssessmentRequest partAssessRequest) {
+		
+		logger.info("*****AssessmentServiceImpl addPartnerAssessment*****");
+		
+		PartnerAssessmentMapEntity ent = new PartnerAssessmentMapEntity();
+		
+		PartnerEntity partEnt = partnerService.getPartnerById(Long.valueOf(partAssessRequest.getPartnerid()));
+		Optional<AssessmentEntity> assEntt = assessmentRepository.findById(Long.parseLong(partAssessRequest.getAssessmentid()));
+		AssessmentEntity assEnt = assEntt.get();
+		
+		ent.setAssessment(assEnt);
+		ent.setPartner(partEnt);
+		ent.setAltEmailId(partAssessRequest.getAltemailid());
+		ent.setFromDate(partAssessRequest.getFromdate());
+		ent.setToDate(partAssessRequest.getTodate());
+		ent.setPartAssessName(partAssessRequest.getPartassessmentname());
+		
+		partnerAssessmentMapRepository.save(ent);
+		
+		return "success";
+	}
+	
 }

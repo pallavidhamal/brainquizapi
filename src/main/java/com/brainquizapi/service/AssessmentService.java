@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.brainquizapi.request.AssessmentRequest;
+import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.AssessmentResponse;
 
@@ -20,5 +21,6 @@ import com.brainquizapi.response.AssessmentResponse;
 
 		public List<AssessmentResponse> getAllAssessments(@RequestBody AssessmentRequest assessmentRequest ) ;
 		public String updateAssessmnent(@RequestBody AssessmentRequest assessmentRequest) ;
+		public String addPartnerAssessment(PartnerAssessmentRequest partAssessRequest);
 
 }
