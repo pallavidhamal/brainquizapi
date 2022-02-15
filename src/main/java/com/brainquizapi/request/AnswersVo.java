@@ -14,5 +14,6 @@ public class AnswersVo {
 	private String id;
 	private String answername;
 	private String score;
+	private String optionno;
 	
 }

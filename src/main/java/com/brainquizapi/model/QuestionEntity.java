@@ -30,6 +30,10 @@ public class QuestionEntity extends CreateUpdate{
 	@Column(name = "questionName")
 	private String questionName;
 	
+	
+	@Column(name = "questionNo")
+	private Float questionNo;
+	
 	@ManyToOne
     @JoinColumn(name="category_id", nullable=false)   
 	private CategoryEntity categoryEntity;
@@ -38,10 +42,21 @@ public class QuestionEntity extends CreateUpdate{
 	@OneToMany(mappedBy = "questionEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AnswersEntity> answers ;
 
+	
+	@Column(name = "questionSrNo")
+	private int questionSrNo;
+	
+	
+	public Float getQuestionNo() {
+		return questionNo;
+	}
 
-	
-	
-	
+
+	public void setQuestionNo(Float questionNo) {
+		this.questionNo = questionNo;
+	}
+
+
 	public Long getId() {
 		return id;
 	}

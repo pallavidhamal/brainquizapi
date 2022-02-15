@@ -31,11 +31,11 @@ public class AnswersEntity extends CreateUpdate{
 	@Column(name = "answerScore")
 	private String answerScore;
 	
+	@Column(name = "answerOption")
+	private String answerOption;
 	
 	@ManyToOne
     @JoinColumn(name="question_id", nullable=false)   
 	private QuestionEntity questionEntity;
-	
-	
 	
 }

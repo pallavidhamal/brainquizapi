@@ -95,6 +95,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 			 for (QuestionsVo QuestVo : QuestionSet)
 			 {
 				 QuestionEntity Qe=new QuestionEntity();
+				 Qe.setQuestionNo(QuestVo.getQuestionNo());
 				 Qe.setQuestionName(QuestVo.getQuestionName());
 				 Qe.setCreateby(assessmentRequest.getCreateBy());
 				 Qe.setIsdeleted("N");
@@ -107,6 +108,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 				 for (AnswersVo ansVo : answerSet)
 				 {
 					 AnswersEntity Ae=new AnswersEntity();
+					 Ae.setAnswerOption(ansVo.getOptionno());
 					 Ae.setAnswerName(ansVo.getAnswername());
 					 Ae.setAnswerScore(ansVo.getScore());
 					 
