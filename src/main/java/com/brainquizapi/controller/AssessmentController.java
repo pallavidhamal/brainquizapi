@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.brainquizapi.request.AssessmentRequest;
+import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.AssessmentResponse;
 import com.brainquizapi.response.BaseResponse;
@@ -37,6 +38,46 @@ public class AssessmentController {
 
 	@Autowired 
 	AssessmentService assessmentService;
+	
+	@PostMapping("/addPartnerAssessment")
+	public ResponseEntity<Object> mapPartnerAssessment(@RequestBody PartnerAssessmentRequest partAssessRequest ,  HttpServletRequest request) {
+		
+		response = new BaseResponse();
+
+		try {
+
+			String flag = assessmentService.addPartnerAssessment(partAssessRequest);
+			if(!flag.equals("success"))
+			{
+				response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+
+				response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+
+			}
+			else
+			{
+				response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+				response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+
+
+			}
+			response.setRespData(flag);
+			
+			return ResponseEntity.ok(response);
+			
+		}
+		catch (Exception e) {
+			logger.error(e.getMessage());
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			//return ResponseEntity.badRequest().body(response);
+			return ResponseEntity.ok(response);
+		}
+		
+   }
 	
 	@PostMapping("/addAssessment")
 	public ResponseEntity<Object> addAssessment(@RequestBody AssessmentRequest assessmentRequest ,  HttpServletRequest request) {
