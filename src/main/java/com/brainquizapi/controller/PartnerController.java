@@ -73,8 +73,8 @@ public class PartnerController {
 	
 	
 	
-	@PostMapping(value = "/uploadPartnerLogo" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<BaseResponse> uploadPartnerLogo (@RequestParam MultipartFile file) {
+	@PostMapping(value = "/uploadPartnerLogo",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)  // , 
+	public ResponseEntity<BaseResponse> uploadPartnerLogo (@RequestParam("file") MultipartFile file) {
 		
 		System.out.println("*******uploadPartnerLogo********"+ file);
 		
