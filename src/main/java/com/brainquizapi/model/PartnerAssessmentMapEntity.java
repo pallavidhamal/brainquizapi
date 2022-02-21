@@ -15,7 +15,7 @@ import lombok.Setter;
 @Entity
 @Table(	name = "partner_assessment_map")
 @Getter @Setter
-public class PartnerAssessmentMapEntity {
+public class PartnerAssessmentMapEntity extends CreateUpdate{
 	
 	@Id
 	@Column(name = "id")
@@ -38,6 +38,9 @@ public class PartnerAssessmentMapEntity {
 	
 	@Column(name = "alt_email")
 	private String altEmailId;
+	
+	@Column(name = "status")
+	private String status;
 	
 	@Column(name = "partner_assessment_name")
 	private String partAssessName;

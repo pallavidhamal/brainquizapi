@@ -102,7 +102,7 @@ public class PartnerServiceImpl implements PartnerService {
 					partnerMasterEntity.setPartnerName(partnerRequest.getPartnername());
 					partnerMasterEntity.setEmailId(partnerRequest.getEmailid());
 					partnerMasterEntity.setCompanyDetails(partnerRequest.getCompanydetails());					
-					partnerMasterEntity.setLogoPath("path");
+					partnerMasterEntity.setLogoPath(partnerRequest.getLogopath());
 					partnerMasterEntity.setMobileNo(partnerRequest.getMobileno());
 					partnerMasterEntity.setWebsite(partnerRequest.getWebsite());	
 					partnerMasterEntity.setUrl(partnerRequest.getUrl());
@@ -169,7 +169,7 @@ public class PartnerServiceImpl implements PartnerService {
 			    partnerMasterEntity.setPartnerName(partnerEntity.getPartnername());
 				partnerMasterEntity.setEmailId(partnerEntity.getEmailid());
 				partnerMasterEntity.setCompanyDetails(partnerEntity.getCompanydetails());				
-				partnerMasterEntity.setLogoPath("path");
+				partnerMasterEntity.setLogoPath(partnerEntity.getLogopath());
 				partnerMasterEntity.setMobileNo(partnerEntity.getMobileno());
 				partnerMasterEntity.setWebsite(partnerEntity.getWebsite());										
 				partnerMasterEntity.setCreateby(partnerEntity.getCreated_by());

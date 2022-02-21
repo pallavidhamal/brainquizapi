@@ -1,5 +1,6 @@
 package com.brainquizapi.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,7 @@ import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.request.QuestionsVo;
 import com.brainquizapi.response.AssessmentResponse;
+import com.brainquizapi.response.PartnerAssessmentResponse;
 
 @Service
 public class AssessmentServiceImpl implements AssessmentService {
@@ -255,10 +257,64 @@ public class AssessmentServiceImpl implements AssessmentService {
 		ent.setFromDate(partAssessRequest.getFromdate());
 		ent.setToDate(partAssessRequest.getTodate());
 		ent.setPartAssessName(partAssessRequest.getPartassessmentname());
+		ent.setStatus("Scheduled");
+		ent.setIsdeleted("N");
 		
 		partnerAssessmentMapRepository.save(ent);
 		
+		
 		return "success";
+	}
+
+	@Override
+	public List<PartnerAssessmentResponse> getAllPartnerAssessmentMaps(HttpServletRequest request) {
+		
+		logger.info("*****AssessmentServiceImpl getAllPartnerAssessmentMaps*****");
+		
+		List<PartnerAssessmentMapEntity> list = partnerAssessmentMapRepository.findAllByIsdeleted("N");
+		
+		List<PartnerAssessmentResponse> finalList = new ArrayList<>();
+		
+		for(PartnerAssessmentMapEntity ent: list) {
+			
+			PartnerAssessmentResponse resp = new PartnerAssessmentResponse();
+			
+			resp.setAltemail(ent.getAltEmailId());
+			resp.setAssessmentid(String.valueOf(ent.getAssessment().getId()));
+			resp.setAssessmentname(ent.getAssessment().getTestName());
+			resp.setPartnerid(String.valueOf(ent.getPartner().getId()));
+			resp.setPartnername(ent.getPartner().getPartnerName());
+			resp.setFromdate(ent.getFromDate());
+			resp.setTodate(ent.getToDate());
+			resp.setPartnerassessmentname(ent.getPartAssessName());
+			resp.setId(ent.getId());
+			resp.setStatus(ent.getStatus());
+			
+			finalList.add(resp);
+		}
+		
+		return finalList;
+	}
+
+	@Override
+	public List<AssessmentResponse> getAllAssessments(HttpServletRequest request) {
+		
+		logger.info("*****AssesmentServiceImpl getAllAssessments*****");
+		
+		List<AssessmentEntity> list = assessmentRepository.findAllByIsdeleted("N");
+		
+		List<AssessmentResponse> finalList = new ArrayList<>();
+		
+		for(AssessmentEntity ent: list) {
+			AssessmentResponse resp = new AssessmentResponse();
+			
+			resp.setId(String.valueOf(ent.getId()));
+			resp.setTestName(ent.getTestName());
+			
+			finalList.add(resp);
+		}
+		
+		return finalList;
 	}
 	
 }

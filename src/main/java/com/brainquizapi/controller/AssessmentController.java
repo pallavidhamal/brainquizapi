@@ -21,6 +21,7 @@ import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.AssessmentResponse;
 import com.brainquizapi.response.BaseResponse;
+import com.brainquizapi.response.PartnerAssessmentResponse;
 import com.brainquizapi.response.PartnerResponse;
 import com.brainquizapi.service.AssessmentService;
 import com.brainquizapi.service.PartnerService;
@@ -38,6 +39,37 @@ public class AssessmentController {
 
 	@Autowired 
 	AssessmentService assessmentService;
+	
+	@GetMapping("/getAllPartnerAssessmentMaps") 
+	public ResponseEntity<Object> getAllPartnerAssessmentMaps(HttpServletRequest request) {
+		
+		response = new BaseResponse();
+		
+		try {
+			
+            List<PartnerAssessmentResponse> responseData =assessmentService.getAllPartnerAssessmentMaps(request);
+			
+			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			response.setRespData(responseData);
+			
+			return ResponseEntity.ok(response);
+			
+			
+				  
+		}catch (Exception e) {
+			
+			logger.error(e.getMessage()); 
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			return ResponseEntity.ok(response);
+			
+		}
+		
+	}
 	
 	@PostMapping("/addPartnerAssessment")
 	public ResponseEntity<Object> mapPartnerAssessment(@RequestBody PartnerAssessmentRequest partAssessRequest ,  HttpServletRequest request) {
@@ -118,6 +150,37 @@ public class AssessmentController {
 		}
 		
    }
+	
+	@GetMapping("/getAllAssessments")
+	public ResponseEntity<BaseResponse> getAllAssessments(HttpServletRequest request) {
+
+		response = new BaseResponse();
+		
+		try {
+			
+			List<AssessmentResponse> responseData = assessmentService.getAllAssessments(request);
+			
+			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			response.setRespData(responseData);
+			
+			return ResponseEntity.ok(response);
+			
+			
+				  
+		}catch (Exception e) {
+			
+			logger.error(e.getMessage()); 
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			return ResponseEntity.ok(response);
+			
+		}
+	
+	}
 	
 	
 	@PostMapping("/getAssessment")

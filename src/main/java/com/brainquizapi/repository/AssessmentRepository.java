@@ -18,6 +18,5 @@ public interface AssessmentRepository extends JpaRepository<AssessmentEntity, Lo
 	
 	List<AssessmentEntity> findAllByIsdeleted(String isdeleted);
 
-
 	
 }
