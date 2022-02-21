@@ -9,11 +9,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.response.BaseResponse;
 import com.brainquizapi.service.AssessmentService;
 import com.brainquizapi.service.ResultService;
@@ -33,8 +35,21 @@ public class ResultController {
 	@Autowired 
 	ResultService resultService;
 	
+	/*
+	 * @PostMapping( path = "/uploadFileTodo", consumes =
+	 * MediaType.MULTIPART_FORM_DATA_VALUE, produces =
+	 * MediaType.APPLICATION_JSON_VALUE ) public ResponseEntity<Todo>
+	 * saveTodo(@RequestParam("title") String title,
+	 * 
+	 * @RequestParam("description") String description,
+	 * 
+	 * @RequestParam("file") MultipartFile file) {
+	 */
+	
+	
 	@PostMapping(value = "/uploadResultFile" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<BaseResponse> uploadResultFile (@RequestParam MultipartFile resultFile) {
+	public ResponseEntity<BaseResponse> uploadResultFile (@RequestParam MultipartFile resultFile,@RequestParam("partnerId") String partnerId,
+            @RequestParam("assessmentId") String assessmentId,@RequestParam("pamapId") String pamapId) {
 		
 		
 		response = new BaseResponse();
@@ -42,7 +57,7 @@ public class ResultController {
 	    try {
 	    	
 	    	//List<UniversityStudDocResponse> List = resultService.uploadResultFile(resultFile);
-	    	resultService.uploadResultFile(resultFile);
+	    	resultService.uploadResultFile(resultFile,partnerId,assessmentId,pamapId);
 				response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
 				response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
 				response.setRespData(null);
