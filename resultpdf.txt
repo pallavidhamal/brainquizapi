@@ -1,0 +1,19 @@
+#firstheading:FIRST HEADING
+
+firstpara:Loren Ipsum…Greetings! Ansdnajnsa askjshda asjsdhdh shjagjashg sajdh sajddasjg asjgasg sahdghs ahsgdhjbdskjjf ks ashsdhjasdj dhfauskfhdaskuhb asuhsad asuhu asudh gsgksagsa sau usagugduasg asu aksugdusagdsa uas dusaugd auguasgus ugdusag suagdugsudgu shshkfjf vbchdsbbdbcb ckhjcbc hchuc sdksdbdasb. We have assessed your ability, qualitatively in term of the following <four> parameter and accordingly assessed your overall indicator.
+
+secondpara:Loren Ipsum…Greetings! Ansdnajnsa askjshda asjsdhdh shjagjashg sajdh sajddasjg asjgasg sahdghs ahsgdhjbdskjjf ks ashsdhjasdj dhfauskfhdaskuhb asuhsad asuhu asudh gsgksagsa sau usagugduasg asu aksugdusagdsa uas dusaugd auguasgus ugdusag suagdugsudgu shshkfjf vbchdsbbdbcb ckhjcbc hchuc sdksdb.The outcomes are <four> colour coded indicators for each of the above parameter.
+
+interpretation: Loren Ipsum…Greetings! Ansdnajnsa askjshda asjsdhdh shjagjashg sajdh sajddasjg asjgasg sahdghs ahsgdhjbdskjjf ks ashsdhjasdj dhfauskfhdaskuhb asuhsad asuhu asudh gsgksagsa sau usagugduasg asu aksugdusagdsa uas dusaugd auguasgus ugdusag suagdugsudgu shshkfjf vbchdsbbdbcb ckhjcbc hchuc sdksdb.The outcomes are <four> colour coded indicators for each of the above parameter.
+
+disclaimer: Loren Ipsum…Greetings! Ansdnajnsa askjshda asjsdhdh shjagjashg sajdh sajddasjg asjgasg sahdghs ahsgdhjbdskjjf ks ashsdhjasdj dhfauskfhdaskuhb asuhsad asuhu asudh gsgksagsa sau
+
+footer:Being aware about the mindfulness is good but it is only the first step. Join our partner network and interact with their experts panel to explore mind and body holistically and be happier. Visit our partner site by clicking on the logo below
+
+keyinfo1:1. Purple rectangle border with light purple highlight This includes an image with a hyperlink to the partner’s site. This is a variable at partner Level. Each partner provides this image and the hyper link. The data source Excel will have a variable that will specify a partner. 
+keyinfo2:2. Blue highlight -These are the variables for a particular type of assessment. A type of assessment gets decided by Assessment ID and for a given assessment ID, the total no of parameters ( eg Four in the above example ), title for each parameter gets automatically decided as per Assessment Master. 
+keyinfo3:3. Yellow highlight or These are variable for individuals rows in the data source Excel. The graphical variablesare in the rectangle for each individual that represents the Numeric score derived from the Excel responses; accumulated for each assessment paramete
+
+keycolor1: Red-Normal Ability
+keycolor2: Amber-Moderately impacted ability
+keycolor3: Green-Severely impacted ability

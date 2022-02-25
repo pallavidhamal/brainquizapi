@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -28,6 +29,8 @@ import com.brainquizapi.repository.ResultRepository;
 import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.response.BaseResponse;
 import com.brainquizapi.response.PartnerResponse;
+import com.brainquizapi.response.ResultPdfResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ResultServiceImpl implements ResultService
@@ -317,6 +320,25 @@ public class ResultServiceImpl implements ResultService
 			return cell.getStringCellValue();
 		else
 			return "";
+	}
+
+
+	@Override
+	public List<ResultPdfResponse> getResultParams() {
+		
+		logger.info("*****ResultServiceImpl getResultParams*****");
+		
+		List<Map<String,String>> list = resultRepository.getResultParams();
+		final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+		
+		List<ResultPdfResponse> resp = new ArrayList<>();
+		
+		for(int i = 0 ; i < list.size() ; i++) {
+			final ResultPdfResponse pojo = mapper.convertValue(list.get(i), ResultPdfResponse.class);
+			resp.add(pojo);
+		}
+		
+		return resp;
 	}
 
 }
