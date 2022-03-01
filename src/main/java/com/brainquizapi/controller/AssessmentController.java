@@ -128,6 +128,7 @@ public class AssessmentController {
 			}
 			else
 			{
+				System.out.println("success");
 				response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
 				response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
 

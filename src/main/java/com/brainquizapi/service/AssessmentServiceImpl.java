@@ -1,5 +1,7 @@
 package com.brainquizapi.service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -310,7 +312,10 @@ public class AssessmentServiceImpl implements AssessmentService {
 			
 			resp.setId(String.valueOf(ent.getId()));
 			resp.setTestName(ent.getTestName());
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");  
+			String strDate = dateFormat.format(ent.getCreatedate());  
 			
+			resp.setCreateDate(strDate);
 			finalList.add(resp);
 		}
 		
