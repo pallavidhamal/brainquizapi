@@ -19,5 +19,6 @@ import com.brainquizapi.response.ResultPdfResponse;
 		List<Map<String, String>> getResultParams();
 		
 
-
+		@Query(value="Call validateExcel(?)", nativeQuery = true)
+		List<Map<String, Object>> validateExcel(String pmapId);
 }

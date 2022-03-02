@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.brainquizapi.controller.PartnerController;
 import com.brainquizapi.model.AllresultEntity;
+import com.brainquizapi.model.AssessmentEntity;
 import com.brainquizapi.model.PartnerAssessmentMapEntity;
 import com.brainquizapi.model.PartnerEntity;
 import com.brainquizapi.repository.CategoryRepository;
@@ -28,6 +30,7 @@ import com.brainquizapi.repository.PartnerAssessmentMapRepository;
 import com.brainquizapi.repository.ResultRepository;
 import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.response.BaseResponse;
+import com.brainquizapi.response.ExcelDataResponse;
 import com.brainquizapi.response.PartnerResponse;
 import com.brainquizapi.response.ResultPdfResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,7 +56,7 @@ public class ResultServiceImpl implements ResultService
 	
 	
 	@Override
-	public ResponseEntity<BaseResponse> uploadResultFile(MultipartFile resultFile,String partnerId ,String assessmentId,String pamapId)  throws Exception {
+	public ResponseEntity<BaseResponse> uploadResultFile(MultipartFile resultFile,String pamapId)  throws Exception {
 		// TODO Auto-generated method stub
 		
 		String assId="",ipPartner="",excelPartner="";
@@ -70,9 +73,27 @@ public class ResultServiceImpl implements ResultService
 		logger.info("Columns="+noOfColumns+"clomncnt="+cellCnt);
 
 		String dbAssName="",excelAssName="";
-		List<PartnerAssessmentMapEntity> pEntity    = pAssessmentRep.findByPartnerAssId(assessmentId, partnerId);
+		
+		Optional<PartnerAssessmentMapEntity> pamapEntity=pAssessmentRep.findById(Long.parseLong(pamapId));
+		PartnerAssessmentMapEntity pmEntity = pamapEntity.get();
+
+		String assmId="",partId="";
+		
+		if(pmEntity!=null) {
+		 assmId=pmEntity.getAssessment().getId().toString();
+		 partId=pmEntity.getPartner().getId().toString();
+		}
+		
+		
+		List<PartnerAssessmentMapEntity> pEntity    = pAssessmentRep.findByPartnerAssId(assmId, partId);
+		
+		
+		
+		//pAssessmentRep.findById(id)
+		
+		
 		int noOfQuestionsDb=0;
-		noOfQuestionsDb=categoryRepository.getQuestionCntByAssId(assessmentId);
+		noOfQuestionsDb=categoryRepository.getQuestionCntByAssId(assmId);
 		
 		if(pEntity!=null)
 		{
@@ -112,8 +133,8 @@ public class ResultServiceImpl implements ResultService
 		    	int rowcell= row.getPhysicalNumberOfCells();
 				logger.info("rowcell="+rowcell);
 		     
-				oneExcelEntity.setPartnerId(partnerId);
-				oneExcelEntity.setAssessmentId(assessmentId); 
+				oneExcelEntity.setPartnerId(partId);
+				oneExcelEntity.setAssessmentId(assmId); 
 				oneExcelEntity.setPmapId(pamapId); 
 				oneExcelEntity.setUserId(row.getCell(0).getStringCellValue());
 				oneExcelEntity.setPassword(row.getCell(1).getStringCellValue());
@@ -339,6 +360,33 @@ public class ResultServiceImpl implements ResultService
 		}
 		
 		return resp;
+	}
+
+
+	@Override
+	public List<ExcelDataResponse> validateExcel(String pmapId) {
+		// TODO Auto-generated method stub
+		
+		final ObjectMapper mapper = new ObjectMapper();
+		
+		List<ExcelDataResponse> respList = new ArrayList<>();
+
+		List<Map<String ,Object>> excelCompareList = resultRepository.validateExcel(pmapId);
+		
+		System.out.println(excelCompareList.size());
+		for(int i=0; i<excelCompareList.size(); i++) {
+			final ExcelDataResponse excelDataResponse = mapper.convertValue(excelCompareList.get(i), ExcelDataResponse.class);
+	//		logger.info(String.valueOf(i) + "-->"+exce
+			ExcelDataResponse oneResp=new ExcelDataResponse();
+			
+			oneResp.setEmail_id(excelDataResponse.getEmail_id());
+			oneResp.setStudent_name(excelDataResponse.getStudent_name());
+			oneResp.setTest_name(excelDataResponse.getTest_name());
+			oneResp.setTotal_questions(excelDataResponse.getTotal_questions());
+			respList.add(oneResp);
+			System.out.println(excelDataResponse.getEmail_id());
+		}
+		return respList;
 	}
 
 }

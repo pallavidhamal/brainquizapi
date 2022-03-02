@@ -21,7 +21,7 @@ public class PartnerRequest {
 	private String url;
 	private String ccemailid;
 	private Long id;
-	
+	private String pamapId;
 	
 	
 

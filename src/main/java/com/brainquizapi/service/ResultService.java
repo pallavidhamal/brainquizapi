@@ -9,13 +9,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.response.BaseResponse;
+import com.brainquizapi.response.ExcelDataResponse;
 import com.brainquizapi.response.ResultPdfResponse;
 
 public interface ResultService {
 
-	 ResponseEntity<BaseResponse> uploadResultFile (@RequestParam MultipartFile resultFile,String partnerId ,String assessmentId,String pamapId)  throws Exception ;
+	 ResponseEntity<BaseResponse> uploadResultFile (@RequestParam MultipartFile resultFile,String pamapId)  throws Exception ;
 
 	List<ResultPdfResponse> getResultParams();
 
-	
+	List<ExcelDataResponse> validateExcel(String pmapId);
 }

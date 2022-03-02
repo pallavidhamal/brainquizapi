@@ -22,7 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.brainquizapi.repository.ResultRepository;
 import com.brainquizapi.request.PartnerAssessmentRequest;
+import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.BaseResponse;
+import com.brainquizapi.response.ExcelDataResponse;
 import com.brainquizapi.response.ResultPdfResponse;
 import com.brainquizapi.service.AssessmentService;
 import com.brainquizapi.service.EmailService;
@@ -62,8 +64,7 @@ public class ResultController {
 	
 	
 	@PostMapping(value = "/uploadResultFile" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseEntity<BaseResponse> uploadResultFile (@RequestParam MultipartFile resultFile,@RequestParam("partnerId") String partnerId,
-            @RequestParam("assessmentId") String assessmentId,@RequestParam("pamapId") String pamapId) {
+	public ResponseEntity<BaseResponse> uploadResultFile (@RequestParam MultipartFile resultFile,@RequestParam("pamapId") String pamapId) {
 		
 		
 		response = new BaseResponse();
@@ -71,7 +72,8 @@ public class ResultController {
 	    try {
 	    	
 	    	//List<UniversityStudDocResponse> List = resultService.uploadResultFile(resultFile);
-	    	resultService.uploadResultFile(resultFile,partnerId,assessmentId,pamapId);
+	    	System.out.println("pamapId"+pamapId);
+	    	resultService.uploadResultFile(resultFile,pamapId);
 				response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
 				response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
 				response.setRespData(null);
@@ -107,6 +109,39 @@ public class ResultController {
         }
 		
 	}
+	
+	
+	@PostMapping("/validateExcel")
+	public ResponseEntity<Object> validateExcel(@RequestBody PartnerRequest partnerRequest ,  HttpServletRequest request) {
+		
+		logger.info("********partnerController addpartner()********");
+		response = new BaseResponse();
+		
+		try {
+			String pamapId=partnerRequest.getPamapId();
+			List<ExcelDataResponse> respList= resultService.validateExcel(pamapId);
+			
+				response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+				response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+
+
+			response.setRespData(respList);
+			
+			return ResponseEntity.ok(response);
+			
+		}
+		catch (Exception e) {
+			logger.error(e.getMessage());
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			//return ResponseEntity.badRequest().body(response);
+			return ResponseEntity.ok(response);
+		}
+		
+   }
 	
 	
 
