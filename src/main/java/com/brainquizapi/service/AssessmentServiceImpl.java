@@ -190,6 +190,20 @@ public class AssessmentServiceImpl implements AssessmentService {
 		// TODO Auto-generated method stub
 		return Ar; 
 	}
+	
+	@Override
+	public AssessmentResponse getAssessmentById(long id) {
+		
+		AssessmentResponse assessmentResponse = new AssessmentResponse();
+		
+			 AssessmentEntity assesEntity=assessmentRepository.findById(id).get();
+
+			 assessmentResponse.setId(String.valueOf(assesEntity.getId()));
+			 assessmentResponse.setTestName(assesEntity.getTestName());
+			 
+		// TODO Auto-generated method stub
+		return assessmentResponse; 
+	}
 
 	@Override
 	public List<AssessmentResponse> getAllAssessments(AssessmentRequest assessmentRequest) {
@@ -259,7 +273,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 		ent.setFromDate(partAssessRequest.getFromdate());
 		ent.setToDate(partAssessRequest.getTodate());
 		ent.setPartAssessName(partAssessRequest.getPartassessmentname());
-		ent.setStatus("Scheduled");
+//		ent.setStatus("Scheduled");
 		ent.setIsdeleted("N");
 		
 		partnerAssessmentMapRepository.save(ent);

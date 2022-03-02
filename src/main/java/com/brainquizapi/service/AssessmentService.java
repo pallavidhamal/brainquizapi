@@ -26,4 +26,5 @@ import com.brainquizapi.response.PartnerAssessmentResponse;
 		public List<PartnerAssessmentResponse> getAllPartnerAssessmentMaps(HttpServletRequest request);
 		public List<AssessmentResponse> getAllAssessments(HttpServletRequest request);
 
+		public AssessmentResponse getAssessmentById(long id);
 }
