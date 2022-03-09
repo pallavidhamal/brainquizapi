@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.brainquizapi.model.AssessmentEntity;
 import com.brainquizapi.model.PartnerAssessmentMapEntity;
 import com.brainquizapi.model.PartnerEntity;
 import com.brainquizapi.repository.PartnerAssessmentMapRepository;
@@ -67,5 +68,54 @@ public class PartnerAssessmentServiceImpl implements PartnerAssessmentService {
 		
 		return assessmentMapResponses;
 	}
+
+	@Override
+	public List<PartnerAssessmentMapResponse> getPartnerAssessmentMapByPartnerIdAndAssessmentId(long partnerid,
+			long assessmentid, HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		
+			
+		PartnerEntity partnerEntity = partnerService.getPartnerById(partnerid);
+		
+		AssessmentEntity assessmentEntity = assessmentService.getAssessmentEntityById(assessmentid);
+		
+		
+		List<PartnerAssessmentMapResponse> assessmentMapResponses = new ArrayList<PartnerAssessmentMapResponse>();
+		
+		
+		List<PartnerAssessmentMapEntity> partnerAssessmentMapEntities =  assessmentMapRepository.findByPartnerAndAssessmentAndIsdeleted(partnerEntity,assessmentEntity,"N");
+		
+		
+		for(PartnerAssessmentMapEntity assessmentMapEntity : partnerAssessmentMapEntities ) {
+			
+			PartnerAssessmentMapResponse assessmentMapResponse = new PartnerAssessmentMapResponse();
+			
+			
+			assessmentMapResponse.setId(assessmentMapEntity.getId());
+			assessmentMapResponse.setPartnername(partnerService.getPartnerById(assessmentMapEntity.getPartner().getId()).getPartnerName());
+			assessmentMapResponse.setAssesmentname(assessmentService.getAssessmentById(assessmentMapEntity.getAssessment().getId()).getTestName());
+			assessmentMapResponse.setPartassesmentname(assessmentMapEntity.getPartAssessName());
+			assessmentMapResponse.setFromDate(assessmentMapEntity.getFromDate());
+			assessmentMapResponse.setToDate(assessmentMapEntity.getToDate());
+			assessmentMapResponse.setStatus(assessmentMapEntity.getStatus());
+			
+			
+			assessmentMapResponses.add(assessmentMapResponse);
+		}
+		
+		return assessmentMapResponses;
+	}
+
+	@Override
+	public PartnerAssessmentMapEntity getDataByPartnerAssessmentId(long partnerAssessmentid,
+			HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		
+		PartnerAssessmentMapEntity partnerAssessmentMapEntities =  assessmentMapRepository.findById(partnerAssessmentid).get();
+		
+		return partnerAssessmentMapEntities;
+	}
+
+
 
 }

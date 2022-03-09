@@ -204,6 +204,19 @@ public class AssessmentServiceImpl implements AssessmentService {
 		// TODO Auto-generated method stub
 		return assessmentResponse; 
 	}
+	
+	@Override
+	public AssessmentEntity getAssessmentEntityById(long id) {
+		
+		AssessmentResponse assessmentResponse = new AssessmentResponse();
+		
+			 AssessmentEntity assesEntity=assessmentRepository.findById(id).get();
+
+			 
+		// TODO Auto-generated method stub
+		return assesEntity; 
+	}
+
 
 	@Override
 	public List<AssessmentResponse> getAllAssessments(AssessmentRequest assessmentRequest) {
@@ -334,6 +347,37 @@ public class AssessmentServiceImpl implements AssessmentService {
 		}
 		
 		return finalList;
+	}
+	
+	
+	@Override
+	public List<AssessmentResponse> getAssessmentByAssessmentPartnerMapByPartnerIdAndGroubByAssessmentId(long id, HttpServletRequest request) {
+		// TODO Auto-generated method stub
+		
+			
+		PartnerEntity partnerEntity = partnerService.getPartnerById(id);
+		
+		
+		List<AssessmentResponse> assessmentResponses = new ArrayList<AssessmentResponse>();
+		
+		
+		List<AssessmentEntity> partnerAssessmentEntities =  assessmentRepository.findAssessmentByPartnerAssessmentGroubAndIsdeleted(partnerEntity);
+		
+		
+		for(AssessmentEntity assessmentMapEntity : partnerAssessmentEntities ) {
+			
+			AssessmentResponse assessmentResponse = new AssessmentResponse();
+			
+			
+			assessmentResponse.setId(String.valueOf(assessmentMapEntity.getId()));
+			assessmentResponse.setTestName(assessmentMapEntity.getTestName());
+			
+			
+			assessmentResponses.add(assessmentResponse);
+		}
+		
+		
+		return assessmentResponses;
 	}
 	
 }

@@ -8,10 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.brainquizapi.model.AssessmentEntity;
 import com.brainquizapi.request.AssessmentRequest;
 import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.AssessmentResponse;
+import com.brainquizapi.response.PartnerAssessmentMapResponse;
 import com.brainquizapi.response.PartnerAssessmentResponse;
 
 	
@@ -27,4 +29,9 @@ import com.brainquizapi.response.PartnerAssessmentResponse;
 		public List<AssessmentResponse> getAllAssessments(HttpServletRequest request);
 
 		public AssessmentResponse getAssessmentById(long id);
+		
+		public AssessmentEntity getAssessmentEntityById(long id);
+		
+		public List<AssessmentResponse> getAssessmentByAssessmentPartnerMapByPartnerIdAndGroubByAssessmentId(
+				long id, HttpServletRequest request);
 }

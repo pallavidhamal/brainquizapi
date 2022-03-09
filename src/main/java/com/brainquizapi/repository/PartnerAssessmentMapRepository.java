@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.brainquizapi.model.AssessmentEntity;
 import com.brainquizapi.model.PartnerAssessmentMapEntity;
 import com.brainquizapi.model.PartnerEntity;
 
@@ -22,5 +23,8 @@ public interface PartnerAssessmentMapRepository extends JpaRepository<PartnerAss
 			+ " FROM brainquiz.partner_assessment_map as tb where tb.is_deleted = ?2 and tb.fk_partner = ?1", nativeQuery = true)
 	
 	List<PartnerAssessmentMapEntity> findByPartnerAndIsdeleted(PartnerEntity partnerEntity , String Isdeleted);
-	
+
+	List<PartnerAssessmentMapEntity> findByPartnerAndAssessmentAndIsdeleted(PartnerEntity partnerEntity,
+			AssessmentEntity assessmentEntity, String Isdeleted);
+
 }

@@ -21,6 +21,7 @@ import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.AssessmentResponse;
 import com.brainquizapi.response.BaseResponse;
+import com.brainquizapi.response.PartnerAssessmentMapResponse;
 import com.brainquizapi.response.PartnerAssessmentResponse;
 import com.brainquizapi.response.PartnerResponse;
 import com.brainquizapi.service.AssessmentService;
@@ -210,6 +211,40 @@ public class AssessmentController {
 	}
 	
 	
+	
+	@GetMapping("/getAssessmentByAssessmentPartnerMapByPartnerIdAndGroubByAssessmentId/{id}")
+	public ResponseEntity<Object> getAssessmentByAssessmentPartnerMapByPartnerIdAndGroubByAssessmentId(@PathVariable long id,  HttpServletRequest request) {
+		
+		response = new BaseResponse();
+		
+		try {
+
+			
+			List<AssessmentResponse> responseData = assessmentService.getAssessmentByAssessmentPartnerMapByPartnerIdAndGroubByAssessmentId(id, request); 
+			
+			
+			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			response.setRespData(responseData);
+			
+			return ResponseEntity.ok(response);
+			
+		}catch (Exception e) {
+			
+			e.printStackTrace();
+			
+			logger.error(e.getMessage());
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			return ResponseEntity.badRequest().body(response);
+			
+		}
+	
+	
+}
 	
 	
 }

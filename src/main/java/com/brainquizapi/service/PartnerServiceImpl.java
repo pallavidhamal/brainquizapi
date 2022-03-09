@@ -222,10 +222,9 @@ public class PartnerServiceImpl implements PartnerService {
 		
 		logger.info("*****PartnerServiceImpl getPartnerById*****"+id);
 		
-		Optional<PartnerEntity> partnerEntit  = partnerRepository.findById(id);
-		PartnerEntity partnerMasterEntity = partnerEntit.get();
+		PartnerEntity partnerEntity  = partnerRepository.findById(id).get();
 		
-		return partnerMasterEntity;
+		return partnerEntity;
 	}
 	
 	

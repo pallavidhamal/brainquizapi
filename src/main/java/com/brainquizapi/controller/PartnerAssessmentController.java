@@ -70,9 +70,38 @@ public class PartnerAssessmentController {
 			return ResponseEntity.badRequest().body(response);
 			
 		}
-		
-		
 	}
-	
+		
+	@GetMapping("/getPartnerAssessmentMapByPartnerIdAndAssessmentId/{partnerid}/{assessmentid}")
+	public ResponseEntity<Object> getPartnerAssessmentMapByPartnerIdAndAssessmentId(@PathVariable long partnerid,@PathVariable long assessmentid,  HttpServletRequest request) {
+		
+		response = new BaseResponse();
+		
+		try {
+
+			
+			List<PartnerAssessmentMapResponse> responseData = partnerAssessmentService.getPartnerAssessmentMapByPartnerIdAndAssessmentId(partnerid,assessmentid, request); 
+			
+			
+			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			response.setRespData(responseData);
+			
+			return ResponseEntity.ok(response);
+			
+		}catch (Exception e) {
+			
+			e.printStackTrace();
+			
+			logger.error(e.getMessage());
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			return ResponseEntity.badRequest().body(response);
+			
+		}
+	}	
 	
 }

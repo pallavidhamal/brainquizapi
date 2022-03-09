@@ -3,9 +3,12 @@ package com.brainquizapi.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -16,6 +19,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,16 +29,22 @@ import org.springframework.web.multipart.MultipartFile;
 import com.brainquizapi.controller.PartnerController;
 import com.brainquizapi.model.AllresultEntity;
 import com.brainquizapi.model.AssessmentEntity;
+import com.brainquizapi.model.CategoryEntity;
 import com.brainquizapi.model.PartnerAssessmentMapEntity;
 import com.brainquizapi.model.PartnerEntity;
 import com.brainquizapi.repository.CategoryRepository;
 import com.brainquizapi.repository.PartnerAssessmentMapRepository;
 import com.brainquizapi.repository.ResultRepository;
 import com.brainquizapi.request.PartnerAssessmentRequest;
+import com.brainquizapi.response.AllCandidateResultResponse;
 import com.brainquizapi.response.BaseResponse;
+import com.brainquizapi.response.DataTableColumnsResponse;
+import com.brainquizapi.response.DataTableDataResponse;
+import com.brainquizapi.response.DataTableResponse;
 import com.brainquizapi.response.ExcelDataResponse;
 import com.brainquizapi.response.PartnerResponse;
 import com.brainquizapi.response.ResultPdfResponse;
+import com.brainquizapi.response.ResultResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -51,6 +63,15 @@ public class ResultServiceImpl implements ResultService
 	
 	@Autowired
 	CategoryRepository categoryRepository;
+	
+	@Autowired
+	PartnerService partnerService;
+	
+	@Autowired
+	PartnerAssessmentService partnerAssessmentService;
+	
+	@Autowired
+	AssessmentService assessmentService;
 
 	BaseResponse response = null;
 	
@@ -361,6 +382,115 @@ public class ResultServiceImpl implements ResultService
 		
 		return resp;
 	}
+	
+	
+	@Override
+	public JSONObject getCandidateResultParams(long partnerid , long assessmentid, long partnerAssessmentid , HttpServletRequest request) throws JSONException {
+		
+		JSONObject map = new JSONObject();
+		
+		logger.info("*****ResultServiceImpl getCandidateResultParams*****");
+		
+		PartnerEntity partnerEntity = partnerService.getPartnerById(partnerid);
+		
+		AssessmentEntity assessmentEntity = assessmentService.getAssessmentEntityById(assessmentid);
+		
+		PartnerAssessmentMapEntity partnerAssessmentMapEntity =  partnerAssessmentService.getDataByPartnerAssessmentId(partnerAssessmentid,request);
+		
+		List<CategoryEntity> categoryEntities = categoryRepository.findByAssessmentEntity(assessmentEntity);
+
+		JSONArray jsonArrayColumns = new JSONArray();
+		
+		JSONObject	jsonObjectColumnsEmailid	= new JSONObject();
+		
+		jsonObjectColumnsEmailid.put("title","emailid".toUpperCase());
+		jsonObjectColumnsEmailid.put("data","emailid");
+		
+		jsonArrayColumns.put(jsonObjectColumnsEmailid);
+		
+		JSONObject	jsonObjectColumnsStudentname	= new JSONObject();
+		
+		jsonObjectColumnsStudentname.put("title","studentname".toUpperCase());
+		jsonObjectColumnsStudentname.put("data","studentname");
+		
+		jsonArrayColumns.put(jsonObjectColumnsStudentname);
+		
+		for(CategoryEntity CategoryEntity : categoryEntities) {
+			
+			JSONObject	jsonObjectColumns	= new JSONObject();
+			
+			jsonObjectColumns.put("title",CategoryEntity.getCategoryName().toUpperCase());
+			jsonObjectColumns.put("data",CategoryEntity.getCategoryName());
+			
+			jsonArrayColumns.put(jsonObjectColumns);
+		}
+		
+		JSONObject	jsonObjectColumnsActions	= new JSONObject();
+		
+		jsonObjectColumnsActions.put("title","actions".toUpperCase());
+		jsonObjectColumnsActions.put("data","actions");
+		
+		jsonArrayColumns.put(jsonObjectColumnsActions);
+		
+		List<Map<String,String>> list = resultRepository.getTableResultParams( partnerEntity, assessmentEntity,partnerAssessmentMapEntity );
+		final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+		
+		JSONArray jsonArrayData = new JSONArray();
+		
+		List<AllCandidateResultResponse> resp = new ArrayList<>();
+		
+		String studentname = "";
+		
+		JSONObject	jsonObjectData = null;
+		
+		int j = 0;
+		
+		for(int i = 0 ; i < list.size() ; i++) {
+			final AllCandidateResultResponse pojo = mapper.convertValue(list.get(i), AllCandidateResultResponse.class);
+			resp.add(pojo);
+			j++;
+			
+			String marks = "";
+			
+			if(pojo.getColors().equalsIgnoreCase("red")) {
+				marks = "<span class='badge badge-pill badge-danger font-weight-bold'>"+pojo.getMarks()+"</span>" ; 
+			}
+			if(pojo.getColors().equalsIgnoreCase("green")) {
+				marks ="<span class='badge badge-pill badge-success'>"+pojo.getMarks()+"</span>"; 
+			}
+			if(pojo.getColors().equalsIgnoreCase("amber")) {
+				marks ="<span class='badge badge-pill badge-warning'>"+pojo.getMarks()+"</span>"; 
+			}
+			
+			if(!pojo.getStudentname().equalsIgnoreCase(studentname)) {
+				
+				jsonObjectData	= new JSONObject();
+				
+				jsonObjectData.put("studentname", pojo.getStudentname());
+				jsonObjectData.put("emailid", pojo.getEmailid());
+				jsonObjectData.put("actions", "<a href=''type='button'  data-toggle='modal' data-target='#mailModal' class='btn btn-primary btn-sm'  title='Resend Result'>Resend Result</a>");
+				jsonObjectData.put(pojo.getCategory_name(), marks);
+				
+			}else {
+				
+				jsonObjectData.put(pojo.getCategory_name(), marks);
+			}
+			
+			if(categoryEntities.size() == j) {
+				j=0;
+				jsonArrayData.put(jsonObjectData);
+			}
+			
+			studentname = pojo.getStudentname();
+		}
+		
+		map.put("columns", jsonArrayColumns);
+		map.put("data", jsonArrayData);
+		
+		return map;
+	}
+	
+	
 
 
 	@Override

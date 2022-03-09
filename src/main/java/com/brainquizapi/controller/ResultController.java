@@ -1,5 +1,6 @@
 package com.brainquizapi.controller;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -23,9 +26,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.brainquizapi.repository.ResultRepository;
 import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
+import com.brainquizapi.response.AllCandidateResultResponse;
 import com.brainquizapi.response.BaseResponse;
 import com.brainquizapi.response.ExcelDataResponse;
+import com.brainquizapi.response.PartnerAssessmentMapResponse;
 import com.brainquizapi.response.ResultPdfResponse;
+import com.brainquizapi.response.ResultResponse;
 import com.brainquizapi.service.AssessmentService;
 import com.brainquizapi.service.EmailService;
 import com.brainquizapi.service.ResultService;
@@ -144,5 +150,32 @@ public class ResultController {
    }
 	
 	
-
+	@GetMapping("/getPartnerAssessmentMapByPartnerIdAndAssessmentIdAndPartnerAssessmentid/{partnerid}/{assessmentid}/{partnerAssessmentid}")
+	public ResponseEntity<BaseResponse> getPartnerAssessmentMapByPartnerIdAndAssessmentId(@PathVariable long partnerid,@PathVariable long assessmentid, @PathVariable long partnerAssessmentid , HttpServletRequest request) {
+		
+		response = new BaseResponse();
+		
+		try {
+			
+			JSONObject responseData = resultService.getCandidateResultParams(partnerid,assessmentid,partnerAssessmentid, request); 
+			
+			  response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			  response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			  response.setRespData(responseData.toString());
+			
+			return ResponseEntity.ok(response);
+			
+		}catch (Exception e) {
+			
+			e.printStackTrace();
+			
+			logger.error(e.getMessage());
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
 }

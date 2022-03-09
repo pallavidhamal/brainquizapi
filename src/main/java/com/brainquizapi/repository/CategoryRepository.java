@@ -24,7 +24,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
 	 
   //  List<CategoryEntity> findByAssessmentEntity(AssessmentEntity Ae);
 
-  //  List<CategoryEntity> findByAssessmentId(AssessmentEntity Ae);
+    List<CategoryEntity> findByAssessmentEntity(AssessmentEntity Ae);
 
 	 
 }

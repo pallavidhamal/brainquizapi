@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.brainquizapi.model.AllresultEntity;
+import com.brainquizapi.model.AssessmentEntity;
+import com.brainquizapi.model.PartnerAssessmentMapEntity;
+import com.brainquizapi.model.PartnerEntity;
 import com.brainquizapi.response.ResultPdfResponse;
 
 
@@ -21,4 +24,18 @@ import com.brainquizapi.response.ResultPdfResponse;
 
 		@Query(value="Call validateExcel(?)", nativeQuery = true)
 		List<Map<String, Object>> validateExcel(String pmapId);
+		
+		
+		@Query(value=" select Ifnull ( finVal.student_name ,'') as studentname ,Ifnull ( finVal.email_id ,'') as emailid ,Ifnull ( finVal.marks ,'') as marks, "
+				+ " Ifnull ( finVal.categoryID ,'') as categoryID,Ifnull ( finVal.category_name ,'') as  category_name ,Ifnull ( finVal.colors ,'') as colors "
+				+ " from ( SELECT  aa.student_name , aa.email_id , sum(score) as marks , aa.categoryID  , cmst.id ,cmst.category_name , "
+				+ " case when sum(score) BETWEEN cmst.red_from AND cmst.red_to then 'red'  "
+				+ "		 when sum(score) BETWEEN cmst.green_from AND cmst.green_to then 'green' "
+				+ "      when sum(score) BETWEEN cmst.amber_from AND cmst.amber_to then 'amber' end as colors FROM resultcatscore as aa  "
+				+ " left join category_master as cmst on aa.categoryID = cmst.id and cmst.assessment_id = aa.assessmentId "
+				+ " where  partnerId = ?1 and assessmentId  = ?2 and pmapId  = ?3 group by studentid , categoryID ) as finVal  order by student_name , id",nativeQuery = true)
+		List<Map<String, String>> getTableResultParams(PartnerEntity partnerEntity,AssessmentEntity assessmentEntity,PartnerAssessmentMapEntity partnerAssessmentMapEntity );
+		
+		
+		
 }
