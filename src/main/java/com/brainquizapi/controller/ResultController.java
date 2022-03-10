@@ -80,9 +80,9 @@ public class ResultController {
 	    	//List<UniversityStudDocResponse> List = resultService.uploadResultFile(resultFile);
 	    	System.out.println("pamapId"+pamapId);
 	    	resultService.uploadResultFile(resultFile,pamapId);
-				response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
-				response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
-				response.setRespData(null);
+			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			response.setRespData(null);
 				
 				return ResponseEntity.ok(response);
 					
@@ -106,15 +106,43 @@ public class ResultController {
 		logger.info("*****ResultController exportResultPdf*****");
 		
 		try {
+			
+			
+			
 			List<ResultPdfResponse> result = resultService.getResultParams();
-			emailService.exportResult(response, result);
+			//emailService.exportResult(response, result);
+			emailService.exportResult( result);
+			
+			
+			
 			
 		}catch(Exception e) {
         	
         	logger.info("-----imageLocation---------------"+e.getMessage());
         }
-		
 	}
+	
+	@PostMapping("/exportAllresultpdf")
+    public void exportAllresultpdf(HttpServletResponse response ,HttpServletRequest request) throws Exception {
+		
+		logger.info("*****ResultController exportResultPdf*****");
+		
+		try {
+			
+			
+			
+			List<ResultPdfResponse> result = resultService.getResultParams();
+			emailService.exportResult( result);
+			
+			
+			
+			
+		}catch(Exception e) {
+        	
+        	logger.info("-----imageLocation---------------"+e.getMessage());
+        }
+	}
+	
 	
 	
 	@PostMapping("/validateExcel")
@@ -149,7 +177,36 @@ public class ResultController {
 		
    }
 	
-	
+	@PostMapping("/resultCalculation")
+	public ResponseEntity<Object> ResultCalculation(@RequestBody PartnerRequest partnerRequest ,  HttpServletRequest request) {
+		
+		logger.info("********ResultCalculation********");
+		response = new BaseResponse();
+		boolean flag;
+		
+		try {
+			String pamapId=partnerRequest.getPamapId();
+			flag= resultService.ResultCalculation(pamapId);
+			
+			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			response.setRespData(flag);
+			
+			return ResponseEntity.ok(response);
+			
+		}
+		catch (Exception e) {
+			logger.error(e.getMessage());
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			//return ResponseEntity.badRequest().body(response);
+			return ResponseEntity.ok(response);
+		}
+		
+   }
 	@GetMapping("/getPartnerAssessmentMapByPartnerIdAndAssessmentIdAndPartnerAssessmentid/{partnerid}/{assessmentid}/{partnerAssessmentid}")
 	public ResponseEntity<BaseResponse> getPartnerAssessmentMapByPartnerIdAndAssessmentId(@PathVariable long partnerid,@PathVariable long assessmentid, @PathVariable long partnerAssessmentid , HttpServletRequest request) {
 		

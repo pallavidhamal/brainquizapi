@@ -141,6 +141,8 @@ public class AssessmentController {
 			
 		}
 		catch (Exception e) {
+			e.printStackTrace();
+			
 			logger.error(e.getMessage());
 			
 			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);

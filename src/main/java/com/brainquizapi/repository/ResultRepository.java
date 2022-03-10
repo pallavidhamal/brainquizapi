@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.brainquizapi.model.AllresultEntity;
 import com.brainquizapi.model.AssessmentEntity;
@@ -35,6 +37,33 @@ import com.brainquizapi.response.ResultPdfResponse;
 				+ " left join category_master as cmst on aa.categoryID = cmst.id and cmst.assessment_id = aa.assessmentId "
 				+ " where  partnerId = ?1 and assessmentId  = ?2 and pmapId  = ?3 group by studentid , categoryID ) as finVal  order by student_name , id",nativeQuery = true)
 		List<Map<String, String>> getTableResultParams(PartnerEntity partnerEntity,AssessmentEntity assessmentEntity,PartnerAssessmentMapEntity partnerAssessmentMapEntity );
+		
+		
+		
+		
+		
+		@Query(value="Call AllResultColToRow(?)", nativeQuery = true)
+		boolean AllResultColToRow(String pmapId);
+		
+		@Modifying(clearAutomatically = true)
+		@Transactional
+		@Query(value="delete FROM allresult_master where pmap_id=? ", nativeQuery = true)
+		int DeleteRecordsByPaMapID(String pmapId);
+		
+		@Modifying(clearAutomatically = true)
+		@Transactional
+		@Query(value="delete FROM allresult_master_rejections where pmap_id=? ", nativeQuery = true)
+		int DeleteRejectionRecordsByPaMapID(String pmapId);
+		
+		@Query(value="SELECT id,studentid, email_id, partnerId,  assessmentId, pmapId,emailstatus,emailcount FROM emailqueue where emailcount is null" ,nativeQuery = true)
+		List<Map<String, Object>> getEmailQueue();
+		
+		@Modifying(clearAutomatically = true)
+		@Transactional
+		@Query(value = "UPDATE emailqueue set emailcount=IFNULL(emailcount, 0) + 1 where pmapId=? and studentid=? ", nativeQuery = true)
+		Integer updateEmailQueueCount(int pmapId,int studentid);
+		
+		
 		
 		
 		

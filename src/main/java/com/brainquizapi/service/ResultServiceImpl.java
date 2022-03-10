@@ -80,6 +80,13 @@ public class ResultServiceImpl implements ResultService
 	public ResponseEntity<BaseResponse> uploadResultFile(MultipartFile resultFile,String pamapId)  throws Exception {
 		// TODO Auto-generated method stub
 		
+		
+		int delRep=resultRepository.DeleteRecordsByPaMapID(pamapId);
+		int rejRep=resultRepository.DeleteRejectionRecordsByPaMapID(pamapId);
+		
+		logger.info("delRep="+delRep+"rejRep="+rejRep);
+
+		
 		String assId="",ipPartner="",excelPartner="";
 		
 		List<AllresultEntity> allresultEntity = new ArrayList<AllresultEntity>();
@@ -338,7 +345,6 @@ public class ResultServiceImpl implements ResultService
 		     
 			}//excel row for loop
 		
-		  
 		
 		 resultRepository.saveAll(allresultEntity);
     	 System.out.println("-----saved in db-----");
@@ -519,4 +525,15 @@ public class ResultServiceImpl implements ResultService
 		return respList;
 	}
 
+	@Override
+	public boolean ResultCalculation(String pmapId) {
+		// TODO Auto-generated method stub
+		boolean flag;
+		
+		flag = resultRepository.AllResultColToRow(pmapId);
+		
+		return flag;
+	}
+	
+	
 }

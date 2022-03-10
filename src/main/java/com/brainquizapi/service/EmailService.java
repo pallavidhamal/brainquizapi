@@ -116,10 +116,11 @@ public class EmailService {
 
 	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-	public void exportResult(HttpServletResponse response,List<ResultPdfResponse> result) throws Exception {
+	//public void exportResult(HttpServletResponse response,List<ResultPdfResponse> result) throws Exception {
+	public void exportResult(List<ResultPdfResponse> result) throws Exception {
 		logger.info("*****EmailService exportResult*****");
 		
-		String to = "kartikagashe30@gmail.com";
+		String to = "scubeuser8@gmail.com";
 		String from = "scube.usr@gmail.com";
 		
 		String host = "smtp.gmail.com";
@@ -342,8 +343,8 @@ public class EmailService {
 		    
 		    
 		    
-		    logger.info(firstpara);
-		    logger.info(secondpara);
+		 //   logger.info(firstpara);
+		//    logger.info(secondpara);
 		    
 //		    Paragraph userName = new Paragraph();
 //		    userName.setAlignment(Paragraph.ALIGN_CENTER);

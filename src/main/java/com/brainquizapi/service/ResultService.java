@@ -31,4 +31,7 @@ public interface ResultService {
 
 	JSONObject getCandidateResultParams(long partnerid,
 			long assessmentid, long partnerAssessmentid, HttpServletRequest request) throws JSONException;
+	
+	boolean ResultCalculation(String pmapId);
+
 }
