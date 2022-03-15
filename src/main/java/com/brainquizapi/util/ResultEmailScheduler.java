@@ -62,14 +62,16 @@ public class ResultEmailScheduler {
 			for(int i=0; i<emailqueueList.size(); i++) {
 				
 				final EmailQueueResponse emailQueueResponse = mapper.convertValue(emailqueueList.get(i), EmailQueueResponse.class);
-				//EmailQueueResponse oneResp=new EmailQueueResponse();
-				//emailQueueResponse.get
-				List<ResultPdfResponse> result = resultService.getResultParams();
-				emailService.exportResult(result);
-				//time.sleep(1);
 				
 				int pmapId=emailQueueResponse.getPmapId();
 				int studentid=emailQueueResponse.getStudentid();
+				//EmailQueueResponse oneResp=new EmailQueueResponse();
+				//emailQueueResponse.get
+				List<ResultPdfResponse> result = resultService.getResultParams(pmapId,studentid);
+				emailService.exportResult(result);
+				//time.sleep(1);
+				
+				
 				System.out.println("pmapId="+pmapId+"studentid"+studentid);
 				resultRepository.updateEmailQueueCount(pmapId, studentid);
 			}

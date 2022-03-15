@@ -1,6 +1,5 @@
 package com.brainquizapi.controller;
 
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.brainquizapi.repository.ResultRepository;
-import com.brainquizapi.request.PartnerAssessmentRequest;
 import com.brainquizapi.request.PartnerRequest;
-import com.brainquizapi.response.AllCandidateResultResponse;
 import com.brainquizapi.response.BaseResponse;
 import com.brainquizapi.response.ExcelDataResponse;
-import com.brainquizapi.response.PartnerAssessmentMapResponse;
-import com.brainquizapi.response.ResultPdfResponse;
-import com.brainquizapi.response.ResultResponse;
-import com.brainquizapi.service.AssessmentService;
 import com.brainquizapi.service.EmailService;
 import com.brainquizapi.service.ResultService;
 import com.brainquizapi.util.StringsUtils;
@@ -54,8 +45,9 @@ public class ResultController {
 	@Autowired
 	EmailService emailService;
 	
-	@Autowired
-	ResultRepository resultRepo;
+	/*
+	 * @Autowired ResultRepository resultRepo;
+	 */
 	
 	/*
 	 * @PostMapping( path = "/uploadFileTodo", consumes =
@@ -109,9 +101,9 @@ public class ResultController {
 			
 			
 			
-			List<ResultPdfResponse> result = resultService.getResultParams();
+		//	List<ResultPdfResponse> result = resultService.getResultParams();
 			//emailService.exportResult(response, result);
-			emailService.exportResult( result);
+		//	emailService.exportResult( result);
 			
 			
 			
@@ -122,27 +114,27 @@ public class ResultController {
         }
 	}
 	
-	@PostMapping("/exportAllresultpdf")
-    public void exportAllresultpdf(HttpServletResponse response ,HttpServletRequest request) throws Exception {
-		
-		logger.info("*****ResultController exportResultPdf*****");
-		
-		try {
-			
-			
-			
-			List<ResultPdfResponse> result = resultService.getResultParams();
-			emailService.exportResult( result);
-			
-			
-			
-			
-		}catch(Exception e) {
-        	
-        	logger.info("-----imageLocation---------------"+e.getMessage());
-        }
-	}
-	
+	/*
+	 * @PostMapping("/exportAllresultpdf") public void
+	 * exportAllresultpdf(HttpServletResponse response ,HttpServletRequest request)
+	 * throws Exception {
+	 * 
+	 * logger.info("*****ResultController exportResultPdf*****");
+	 * 
+	 * try {
+	 * 
+	 * 
+	 * 
+	 * // List<ResultPdfResponse> result = resultService.getResultParams(); //
+	 * emailService.exportResult( result);
+	 * 
+	 * 
+	 * 
+	 * 
+	 * }catch(Exception e) {
+	 * 
+	 * logger.info("-----imageLocation---------------"+e.getMessage()); } }
+	 */
 	
 	
 	@PostMapping("/validateExcel")
@@ -196,6 +188,8 @@ public class ResultController {
 			
 		}
 		catch (Exception e) {
+			
+			e.printStackTrace();
 			logger.error(e.getMessage());
 			
 			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
@@ -207,32 +201,39 @@ public class ResultController {
 		}
 		
    }
-	@GetMapping("/getPartnerAssessmentMapByPartnerIdAndAssessmentIdAndPartnerAssessmentid/{partnerid}/{assessmentid}/{partnerAssessmentid}")
-	public ResponseEntity<BaseResponse> getPartnerAssessmentMapByPartnerIdAndAssessmentId(@PathVariable long partnerid,@PathVariable long assessmentid, @PathVariable long partnerAssessmentid , HttpServletRequest request) {
-		
-		response = new BaseResponse();
-		
-		try {
-			
-			JSONObject responseData = resultService.getCandidateResultParams(partnerid,assessmentid,partnerAssessmentid, request); 
-			
-			  response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
-			  response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
-			  response.setRespData(responseData.toString());
-			
-			return ResponseEntity.ok(response);
-			
-		}catch (Exception e) {
-			
-			e.printStackTrace();
-			
-			logger.error(e.getMessage());
-			
-			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
-			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
-			response.setRespData(e.getMessage());
-			
-			return ResponseEntity.badRequest().body(response);
-		}
-	}
+	
+	
+	  @GetMapping(
+	  "/getPartnerAssessmentMapByPartnerIdAndAssessmentIdAndPartnerAssessmentid/{partnerid}/{assessmentid}/{partnerAssessmentid}")
+	  public ResponseEntity<BaseResponse>
+	  getPartnerAssessmentMapByPartnerIdAndAssessmentId(@PathVariable long
+	  partnerid,@PathVariable long assessmentid, @PathVariable long
+	  partnerAssessmentid , HttpServletRequest request) {
+	  
+	  response = new BaseResponse();
+	  
+	  try {
+	  
+	  JSONObject responseData =
+	  resultService.getCandidateResultParams(partnerid,assessmentid,
+	  partnerAssessmentid, request);
+	  
+	  response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+	  response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+	  response.setRespData(responseData.toString());
+	  
+	  return ResponseEntity.ok(response);
+	  
+	  }catch (Exception e) {
+	  
+	  e.printStackTrace();
+	  
+	  logger.error(e.getMessage());
+	  
+	  response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+	  response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+	  response.setRespData(e.getMessage());
+	  
+	  return ResponseEntity.badRequest().body(response); } }
+	 
 }

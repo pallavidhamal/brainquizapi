@@ -20,12 +20,15 @@ import com.brainquizapi.response.ExcelDataResponse;
 import com.brainquizapi.response.PartnerAssessmentMapResponse;
 import com.brainquizapi.response.ResultPdfResponse;
 import com.brainquizapi.response.ResultResponse;
+import org.springframework.stereotype.Service;
 
+
+@Service
 public interface ResultService {
 
-	 ResponseEntity<BaseResponse> uploadResultFile (@RequestParam MultipartFile resultFile,String pamapId)  throws Exception ;
+	ResponseEntity<BaseResponse> uploadResultFile (@RequestParam MultipartFile resultFile,String pamapId)  throws Exception ;
 
-	List<ResultPdfResponse> getResultParams();
+	List<ResultPdfResponse> getResultParams(int pmapid,int studentid);
 
 	List<ExcelDataResponse> validateExcel(String pmapId);
 

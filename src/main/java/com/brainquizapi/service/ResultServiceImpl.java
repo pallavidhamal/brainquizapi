@@ -98,7 +98,7 @@ public class ResultServiceImpl implements ResultService
 		int cellCnt=worksheet.getRow(0).getLastCellNum() ;
 		int noOfColumns = worksheet.getRow(0).getPhysicalNumberOfCells();
 
-		logger.info("Columns="+noOfColumns+"clomncnt="+cellCnt);
+		logger.info("Columns="+noOfColumns+"clomncnt="+cellCnt+"rowcnt="+rowcnt);
 
 		String dbAssName="",excelAssName="";
 		
@@ -141,7 +141,7 @@ public class ResultServiceImpl implements ResultService
 		 * try {
 		 */
 		
-		for(int i=1;i<rowcnt;i++) 
+		for(int i=1;i<=rowcnt;i++) 
 		{
 			
 			 AllresultEntity oneExcelEntity=new AllresultEntity();
@@ -150,7 +150,7 @@ public class ResultServiceImpl implements ResultService
 			 if(row!=null) 
 		     {
 				excelAssName=checkIfCellBlank(row.getCell(4));
-				System.out.println("excelAssName="+excelAssName);
+				System.out.println(i+"excelAssName="+excelAssName+"--"+row.getCell(0));
 
 
 				if(!dbAssName.equals(excelAssName))
@@ -372,11 +372,11 @@ public class ResultServiceImpl implements ResultService
 
 
 	@Override
-	public List<ResultPdfResponse> getResultParams() {
+	public List<ResultPdfResponse> getResultParams(int pmapId,int studentid) {
 		
 		logger.info("*****ResultServiceImpl getResultParams*****");
 		
-		List<Map<String,String>> list = resultRepository.getResultParams();
+		List<Map<String,String>> list = resultRepository.getResultParams( pmapId, studentid);
 		final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
 		
 		List<ResultPdfResponse> resp = new ArrayList<>();
@@ -390,111 +390,107 @@ public class ResultServiceImpl implements ResultService
 	}
 	
 	
-	@Override
-	public JSONObject getCandidateResultParams(long partnerid , long assessmentid, long partnerAssessmentid , HttpServletRequest request) throws JSONException {
-		
-		JSONObject map = new JSONObject();
-		
-		logger.info("*****ResultServiceImpl getCandidateResultParams*****");
-		
-		PartnerEntity partnerEntity = partnerService.getPartnerById(partnerid);
-		
-		AssessmentEntity assessmentEntity = assessmentService.getAssessmentEntityById(assessmentid);
-		
-		PartnerAssessmentMapEntity partnerAssessmentMapEntity =  partnerAssessmentService.getDataByPartnerAssessmentId(partnerAssessmentid,request);
-		
-		List<CategoryEntity> categoryEntities = categoryRepository.findByAssessmentEntity(assessmentEntity);
-
-		JSONArray jsonArrayColumns = new JSONArray();
-		
-		JSONObject	jsonObjectColumnsEmailid	= new JSONObject();
-		
-		jsonObjectColumnsEmailid.put("title","emailid".toUpperCase());
-		jsonObjectColumnsEmailid.put("data","emailid");
-		
-		jsonArrayColumns.put(jsonObjectColumnsEmailid);
-		
-		JSONObject	jsonObjectColumnsStudentname	= new JSONObject();
-		
-		jsonObjectColumnsStudentname.put("title","studentname".toUpperCase());
-		jsonObjectColumnsStudentname.put("data","studentname");
-		
-		jsonArrayColumns.put(jsonObjectColumnsStudentname);
-		
-		for(CategoryEntity CategoryEntity : categoryEntities) {
-			
-			JSONObject	jsonObjectColumns	= new JSONObject();
-			
-			jsonObjectColumns.put("title",CategoryEntity.getCategoryName().toUpperCase());
-			jsonObjectColumns.put("data",CategoryEntity.getCategoryName());
-			
-			jsonArrayColumns.put(jsonObjectColumns);
-		}
-		
-		JSONObject	jsonObjectColumnsActions	= new JSONObject();
-		
-		jsonObjectColumnsActions.put("title","actions".toUpperCase());
-		jsonObjectColumnsActions.put("data","actions");
-		
-		jsonArrayColumns.put(jsonObjectColumnsActions);
-		
-		List<Map<String,String>> list = resultRepository.getTableResultParams( partnerEntity, assessmentEntity,partnerAssessmentMapEntity );
-		final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-		
-		JSONArray jsonArrayData = new JSONArray();
-		
-		List<AllCandidateResultResponse> resp = new ArrayList<>();
-		
-		String studentname = "";
-		
-		JSONObject	jsonObjectData = null;
-		
-		int j = 0;
-		
-		for(int i = 0 ; i < list.size() ; i++) {
-			final AllCandidateResultResponse pojo = mapper.convertValue(list.get(i), AllCandidateResultResponse.class);
-			resp.add(pojo);
-			j++;
-			
-			String marks = "";
-			
-			if(pojo.getColors().equalsIgnoreCase("red")) {
-				marks = "<span class='badge badge-pill badge-danger font-weight-bold'>"+pojo.getMarks()+"</span>" ; 
-			}
-			if(pojo.getColors().equalsIgnoreCase("green")) {
-				marks ="<span class='badge badge-pill badge-success'>"+pojo.getMarks()+"</span>"; 
-			}
-			if(pojo.getColors().equalsIgnoreCase("amber")) {
-				marks ="<span class='badge badge-pill badge-warning'>"+pojo.getMarks()+"</span>"; 
-			}
-			
-			if(!pojo.getStudentname().equalsIgnoreCase(studentname)) {
-				
-				jsonObjectData	= new JSONObject();
-				
-				jsonObjectData.put("studentname", pojo.getStudentname());
-				jsonObjectData.put("emailid", pojo.getEmailid());
-				jsonObjectData.put("actions", "<a href=''type='button'  data-toggle='modal' data-target='#mailModal' class='btn btn-primary btn-sm'  title='Resend Result'>Resend Result</a>");
-				jsonObjectData.put(pojo.getCategory_name(), marks);
-				
-			}else {
-				
-				jsonObjectData.put(pojo.getCategory_name(), marks);
-			}
-			
-			if(categoryEntities.size() == j) {
-				j=0;
-				jsonArrayData.put(jsonObjectData);
-			}
-			
-			studentname = pojo.getStudentname();
-		}
-		
-		map.put("columns", jsonArrayColumns);
-		map.put("data", jsonArrayData);
-		
-		return map;
-	}
+	  @Override public JSONObject getCandidateResultParams(long partnerid , long
+	  assessmentid, long partnerAssessmentid , HttpServletRequest request) throws
+	  JSONException {
+	  
+	  JSONObject map = new JSONObject();
+	  
+	  logger.info("*****ResultServiceImpl getCandidateResultParams*****");
+	  
+	  PartnerEntity partnerEntity = partnerService.getPartnerById(partnerid);
+	  
+	  AssessmentEntity assessmentEntity =
+	  assessmentService.getAssessmentEntityById(assessmentid);
+	  
+	  PartnerAssessmentMapEntity partnerAssessmentMapEntity =
+	  partnerAssessmentService.getDataByPartnerAssessmentId(partnerAssessmentid,
+	  request);
+	  
+	  List<CategoryEntity> categoryEntities =
+	  categoryRepository.findByAssessmentEntity(assessmentEntity);
+	  
+	  JSONArray jsonArrayColumns = new JSONArray();
+	  
+	  JSONObject jsonObjectColumnsEmailid = new JSONObject();
+	  
+	  jsonObjectColumnsEmailid.put("title","emailid".toUpperCase());
+	  jsonObjectColumnsEmailid.put("data","emailid");
+	  
+	  jsonArrayColumns.put(jsonObjectColumnsEmailid);
+	  
+	  JSONObject jsonObjectColumnsStudentname = new JSONObject();
+	  
+	  jsonObjectColumnsStudentname.put("title","studentname".toUpperCase());
+	  jsonObjectColumnsStudentname.put("data","studentname");
+	  
+	  jsonArrayColumns.put(jsonObjectColumnsStudentname);
+	  
+	  for(CategoryEntity CategoryEntity : categoryEntities) {
+	  
+	  JSONObject jsonObjectColumns = new JSONObject();
+	  
+	  jsonObjectColumns.put("title",CategoryEntity.getCategoryName().toUpperCase())
+	  ; jsonObjectColumns.put("data",CategoryEntity.getCategoryName());
+	  
+	  jsonArrayColumns.put(jsonObjectColumns); }
+	  
+	  JSONObject jsonObjectColumnsActions = new JSONObject();
+	  
+	  jsonObjectColumnsActions.put("title","actions".toUpperCase());
+	  jsonObjectColumnsActions.put("data","actions");
+	  
+	  jsonArrayColumns.put(jsonObjectColumnsActions);
+	  
+	  List<Map<String,String>> list = resultRepository.getTableResultParams(
+	  partnerEntity, assessmentEntity,partnerAssessmentMapEntity ); final
+	  ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+	  
+	  JSONArray jsonArrayData = new JSONArray();
+	  
+	  List<AllCandidateResultResponse> resp = new ArrayList<>();
+	  
+	  String studentname = "";
+	  
+	  JSONObject jsonObjectData = null;
+	  
+	  int j = 0;
+	  
+	  for(int i = 0 ; i < list.size() ; i++) { final AllCandidateResultResponse
+	  pojo = mapper.convertValue(list.get(i), AllCandidateResultResponse.class);
+	  resp.add(pojo); j++;
+	  
+	  String marks = "";
+	  
+	  if(pojo.getColors().equalsIgnoreCase("red")) { marks =
+	  "<span class='badge badge-pill badge-danger font-weight-bold'>"+pojo.getMarks
+	  ()+"</span>" ; } if(pojo.getColors().equalsIgnoreCase("green")) { marks
+	  ="<span class='badge badge-pill badge-success'>"+pojo.getMarks()+"</span>"; }
+	  if(pojo.getColors().equalsIgnoreCase("amber")) { marks
+	  ="<span class='badge badge-pill badge-warning'>"+pojo.getMarks()+"</span>"; }
+	  
+	  if(!pojo.getStudentname().equalsIgnoreCase(studentname)) {
+	  
+	  jsonObjectData = new JSONObject();
+	  
+	  jsonObjectData.put("studentname", pojo.getStudentname());
+	  jsonObjectData.put("emailid", pojo.getEmailid());
+	  jsonObjectData.put("actions",
+	  "<a href=''type='button'  data-toggle='modal' data-target='#mailModal' class='btn btn-primary btn-sm'  title='Resend Result'>Resend Result</a>"
+	  ); jsonObjectData.put(pojo.getCategory_name(), marks);
+	  
+	  }else {
+	  
+	  jsonObjectData.put(pojo.getCategory_name(), marks); }
+	  
+	  if(categoryEntities.size() == j) { j=0; jsonArrayData.put(jsonObjectData); }
+	  
+	  studentname = pojo.getStudentname(); }
+	  
+	  map.put("columns", jsonArrayColumns); map.put("data", jsonArrayData);
+	  
+	  return map; }
+	 
 	
 	
 

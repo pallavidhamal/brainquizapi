@@ -13,15 +13,16 @@ import com.brainquizapi.model.AssessmentEntity;
 import com.brainquizapi.model.PartnerAssessmentMapEntity;
 import com.brainquizapi.model.PartnerEntity;
 import com.brainquizapi.response.ResultPdfResponse;
+import org.springframework.stereotype.Repository;
 
 
-	
+	@Repository
 	public interface ResultRepository extends JpaRepository<AllresultEntity, Long> {
 
 		@Query(value="SELECT cm.category_name as categoryName,pmapId,studentid,email_id as emailId,categoryId,sum(score) as score,student_name as studentName "
 				+ ",test_name as testName, test_code as testCode, sub_dt as subDate "
-				+ "FROM resultcatscore rs, category_master cm where rs.categoryID=cm.id and studentid=27 group by categoryID",nativeQuery = true)
-		List<Map<String, String>> getResultParams();
+				+ "FROM resultcatscore rs, category_master cm where rs.categoryID=cm.id and pmapId=? and studentid=? group by categoryID",nativeQuery = true)
+		List<Map<String, String>> getResultParams(int pmapId,int studentid);
 		
 
 		@Query(value="Call validateExcel(?)", nativeQuery = true)
@@ -30,10 +31,10 @@ import com.brainquizapi.response.ResultPdfResponse;
 		
 		@Query(value=" select Ifnull ( finVal.student_name ,'') as studentname ,Ifnull ( finVal.email_id ,'') as emailid ,Ifnull ( finVal.marks ,'') as marks, "
 				+ " Ifnull ( finVal.categoryID ,'') as categoryID,Ifnull ( finVal.category_name ,'') as  category_name ,Ifnull ( finVal.colors ,'') as colors "
-				+ " from ( SELECT  aa.student_name , aa.email_id , sum(score) as marks , aa.categoryID  , cmst.id ,cmst.category_name , "
-				+ " case when sum(score) BETWEEN cmst.red_from AND cmst.red_to then 'red'  "
-				+ "		 when sum(score) BETWEEN cmst.green_from AND cmst.green_to then 'green' "
-				+ "      when sum(score) BETWEEN cmst.amber_from AND cmst.amber_to then 'amber' end as colors FROM resultcatscore as aa  "
+				+ " from ( SELECT  aa.student_name , aa.email_id , sum(Ifnull(score,0)) as marks , aa.categoryID  , cmst.id ,cmst.category_name , "
+				+ " case when sum(Ifnull(score,0)) BETWEEN cmst.red_from AND cmst.red_to then 'red'  "
+				+ "		 when sum(Ifnull(score,0)) BETWEEN cmst.green_from AND cmst.green_to then 'green' "
+				+ "      when sum(Ifnull(score,0)) BETWEEN cmst.amber_from AND cmst.amber_to then 'amber' end as colors FROM resultcatscore as aa  "
 				+ " left join category_master as cmst on aa.categoryID = cmst.id and cmst.assessment_id = aa.assessmentId "
 				+ " where  partnerId = ?1 and assessmentId  = ?2 and pmapId  = ?3 group by studentid , categoryID ) as finVal  order by student_name , id",nativeQuery = true)
 		List<Map<String, String>> getTableResultParams(PartnerEntity partnerEntity,AssessmentEntity assessmentEntity,PartnerAssessmentMapEntity partnerAssessmentMapEntity );

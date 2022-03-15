@@ -120,7 +120,16 @@ public class EmailService {
 	public void exportResult(List<ResultPdfResponse> result) throws Exception {
 		logger.info("*****EmailService exportResult*****");
 		
-		String to = "scubeuser8@gmail.com";
+		String to = "";//"scubeuser8@gmail.com";
+		
+		for(ResultPdfResponse resp: result) {
+			to=resp.getEmailId();
+			logger.info("*****TO MAIL ID*****"+to);
+
+			break;
+		}
+		
+		
 		String from = "scube.usr@gmail.com";
 		
 		String host = "smtp.gmail.com";
