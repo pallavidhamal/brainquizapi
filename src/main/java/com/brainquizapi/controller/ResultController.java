@@ -1,6 +1,7 @@
 package com.brainquizapi.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -205,8 +206,7 @@ public class ResultController {
 	
 	  @GetMapping(
 	  "/getPartnerAssessmentMapByPartnerIdAndAssessmentIdAndPartnerAssessmentid/{partnerid}/{assessmentid}/{partnerAssessmentid}")
-	  public ResponseEntity<BaseResponse>
-	  getPartnerAssessmentMapByPartnerIdAndAssessmentId(@PathVariable long
+	  public ResponseEntity<BaseResponse> getPartnerAssessmentMapByPartnerIdAndAssessmentId(@PathVariable long
 	  partnerid,@PathVariable long assessmentid, @PathVariable long
 	  partnerAssessmentid , HttpServletRequest request) {
 	  
@@ -214,13 +214,11 @@ public class ResultController {
 	  
 	  try {
 	  
-	  JSONObject responseData =
-	  resultService.getCandidateResultParams(partnerid,assessmentid,
-	  partnerAssessmentid, request);
+		  Map<String, Object> responseData = resultService.getCandidateResultParams(partnerid,assessmentid,partnerAssessmentid, request);
 	  
 	  response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
 	  response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
-	  response.setRespData(responseData.toString());
+	  response.setRespData(responseData);
 	  
 	  return ResponseEntity.ok(response);
 	  

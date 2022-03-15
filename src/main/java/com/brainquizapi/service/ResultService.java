@@ -3,6 +3,7 @@ package com.brainquizapi.service;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,8 +33,8 @@ public interface ResultService {
 
 	List<ExcelDataResponse> validateExcel(String pmapId);
 
-	JSONObject getCandidateResultParams(long partnerid,
-			long assessmentid, long partnerAssessmentid, HttpServletRequest request) throws JSONException;
+	Map<String, Object> getCandidateResultParams(long partnerid,
+			long assessmentid, long partnerAssessmentid, HttpServletRequest request) throws Exception;
 	
 	boolean ResultCalculation(String pmapId);
 
