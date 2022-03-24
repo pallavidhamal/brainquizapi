@@ -8,6 +8,8 @@ import lombok.ToString;
 @ToString
 public class AllCandidateResultResponse {
 	
+	private String id;
+	private String pmapid;
 	private String studentname; 
 	private String emailid;
 	private String marks;

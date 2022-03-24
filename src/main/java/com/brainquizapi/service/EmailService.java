@@ -117,14 +117,22 @@ public class EmailService {
 	private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
 	//public void exportResult(HttpServletResponse response,List<ResultPdfResponse> result) throws Exception {
-	public void exportResult(List<ResultPdfResponse> result) throws Exception {
+	public void exportResult(List<ResultPdfResponse> result,String resendEmails) throws Exception {
 		logger.info("*****EmailService exportResult*****");
 		
 		String to = "";//"scubeuser8@gmail.com";
 		
 		for(ResultPdfResponse resp: result) {
 			to=resp.getEmailId();
-			logger.info("*****TO MAIL ID*****"+to);
+			
+			logger.info("*****b4TO MAIL ID*****"+to);
+
+			
+			if(resendEmails != null && !resendEmails.isEmpty())
+				to=to+","+resendEmails;
+				
+				
+			logger.info("*****adding resendTO MAIL ID*****"+to);
 
 			break;
 		}
@@ -189,8 +197,16 @@ public class EmailService {
 			BodyPart messageBodyPart = new MimeBodyPart();
 			Multipart multipart = new MimeMultipart();
 			message.setFrom(new InternetAddress(from));
-            message.addRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(to));
+			
+			String[] recipientList = to.split(",");
+			String[] recipientArr = new String[recipientList.length];
+			for (String recipient : recipientList) {
+				  message.addRecipients(Message.RecipientType.TO,
+		                    InternetAddress.parse(recipient));
+			}
+			
+			
+          
             
             messageBodyPart = new MimeBodyPart();
 			messageBodyPart.setDataHandler(new DataHandler(dataSource));
@@ -201,13 +217,23 @@ public class EmailService {
 			message.setContent(multipart);
 			
 			InternetAddress iaSender = new InternetAddress(from);
-			InternetAddress iaRecipient = new InternetAddress(to);
+		//	InternetAddress iaRecipient = new InternetAddress(to);
 
+			//String[] recipientList = to.split(",");
+			InternetAddress[] recipientAddress = new InternetAddress[recipientList.length];
+			int counter = 0;
+			for (String recipient : recipientList) {
+			    recipientAddress[counter] = new InternetAddress(recipient.trim());
+			    counter++;
+			}
+			
+			
+			
 			// construct the mime message
 //               MimeMessage mimeMessage = new MimeMessage(session);
 			mimeMessage.setSender(iaSender);
 			message.setSubject(subject);
-			mimeMessage.setRecipient(Message.RecipientType.TO, iaRecipient);
+			mimeMessage.setRecipients(Message.RecipientType.TO,recipientAddress );//iaRecipient
 			mimeMessage.setContent(mimeMultipart);
 
 			// send off the email

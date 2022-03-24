@@ -42,20 +42,20 @@ public class ResultEmailScheduler {
 		String currentStats="listening";
 		Long id=(long) 1;
 		Optional<EmailQueueStatus> emailQueueStatus=emailQueueStatusRepository.findById(id);
-		System.out.println("here111");
+		//System.out.println("here111");
 
 		EmailQueueStatus eStatus=emailQueueStatus.get();
 		
 		  if(emailQueueStatus!=null) { 
 			 currentStats=eStatus.getStatus();
-		  System.out.println("here"+currentStats);
+		  //System.out.println("here"+currentStats);
 		  }
 		 
 		
 		if(currentStats.equals("listening"))
 		{
 			int iststus=emailQueueStatusRepository.updateEmailQueueStatus("running");
-			System.out.println("updated");
+			//System.out.println("updated");
 			
 			List<Map<String ,Object>> emailqueueList=resultRepository.getEmailQueue();
 			
@@ -68,7 +68,7 @@ public class ResultEmailScheduler {
 				//EmailQueueResponse oneResp=new EmailQueueResponse();
 				//emailQueueResponse.get
 				List<ResultPdfResponse> result = resultService.getResultParams(pmapId,studentid);
-				emailService.exportResult(result);
+				emailService.exportResult(result,"");
 				//time.sleep(1);
 				
 				
@@ -82,7 +82,7 @@ public class ResultEmailScheduler {
 		}
 		else
 		{
-			System.out.println("not updated");
+			//System.out.println("not updated");
 
 		}
 		

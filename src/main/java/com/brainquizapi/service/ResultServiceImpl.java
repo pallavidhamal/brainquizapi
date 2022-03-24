@@ -36,6 +36,7 @@ import com.brainquizapi.repository.CategoryRepository;
 import com.brainquizapi.repository.PartnerAssessmentMapRepository;
 import com.brainquizapi.repository.ResultRepository;
 import com.brainquizapi.request.PartnerAssessmentRequest;
+import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.AllCandidateResultResponse;
 import com.brainquizapi.response.BaseResponse;
 import com.brainquizapi.response.DataTableColumnsResponse;
@@ -147,162 +148,165 @@ public class ResultServiceImpl implements ResultService {
 				oneExcelEntity.setPartnerId(partId);
 				oneExcelEntity.setAssessmentId(assmId);
 				oneExcelEntity.setPmapId(pamapId);
-				oneExcelEntity.setUserId(row.getCell(0).getStringCellValue());
-				oneExcelEntity.setPassword(row.getCell(1).getStringCellValue());
-
-				Integer stuno = (int) row.getCell(2).getNumericCellValue();
-				oneExcelEntity.setStudentName(stuno.toString());
-				// oneExcelEntity.setStudent(String(row.getCell(2).getNumericCellValue());
-				oneExcelEntity.setCourse(row.getCell(3).getStringCellValue());
-				oneExcelEntity.setTestName(row.getCell(4).getStringCellValue());
-				oneExcelEntity.setRegNo(row.getCell(5).getStringCellValue());
-				oneExcelEntity.setInstitute(row.getCell(6).getStringCellValue());
-				// oneExcelEntity.setBatch(row.getCell(7).getStringCellValue());
-				System.out.println(row.getCell(7).getNumericCellValue());
-				Integer batch = (int) row.getCell(7).getNumericCellValue();
-				oneExcelEntity.setBatch(batch.toString());
-				oneExcelEntity.setBranch(row.getCell(8).getStringCellValue());
+				
+				oneExcelEntity.setUserId(getFormattedCellValue(row.getCell(0)));
+				oneExcelEntity.setPassword(getFormattedCellValue(row.getCell(1)));
+				oneExcelEntity.setStudentName(getFormattedCellValue(row.getCell(2)));
+				
+				// oneExcelEntity.setStudent(String(getFormattedCellValue(row.getCell(2).getNumericCellValue());
+				oneExcelEntity.setCourse(getFormattedCellValue(row.getCell(3)));
+				oneExcelEntity.setTestName(getFormattedCellValue(row.getCell(4)));
+				oneExcelEntity.setRegNo(getFormattedCellValue(row.getCell(5)));
+				oneExcelEntity.setInstitute(getFormattedCellValue(row.getCell(6)));
+				
+				oneExcelEntity.setBatch(getFormattedCellValue(row.getCell(7)));
+				oneExcelEntity.setBranch(getFormattedCellValue(row.getCell(8)));
+				
+				
 				if (DateUtil.isCellDateFormatted(row.getCell(9))) {
-					// System.out.println("dtt"+row.getCell(9).getDateCellValue());
 					Date date = row.getCell(9).getDateCellValue();
 					oneExcelEntity.setSubDt(date.toString());
 				} else {
-					// System.out.println("no"+row.getCell(9).getNumericCellValue());
-					Integer subdt = (int) row.getCell(9).getNumericCellValue();
-					oneExcelEntity.setSubDt(subdt.toString());
+					oneExcelEntity.setSubDt(getFormattedCellValue(row.getCell(9)));
 				}
-				// oneExcelEntity.setSubDt(row.getCell(9).getStringCellValue());
-				int cellType = row.getCell(10).getCellType();
-				// logger.info("active time celltype "+cellType);
-				if (cellType == 1) {
-					oneExcelEntity.setActiveTime(row.getCell(10).getStringCellValue());
-				} else {
-					Integer activeTime = (int) row.getCell(10).getNumericCellValue();
-					oneExcelEntity.setActiveTime(activeTime.toString());
-				}
+			
+				oneExcelEntity.setActiveTime(getFormattedCellValue(row.getCell(10)));
 
-				Integer noQ = (int) row.getCell(11).getNumericCellValue();
+				String noQuestion=getFormattedCellValue(row.getCell(11));
+				
+				/*
+				 * if(noQuestion=="") { throw new
+				 * Exception("NoOfQuestions can not be empty for row" + i); }
+				 */
+				
+				Integer noQ;
+				try {
+				 noQ =Integer.parseInt(noQuestion);
+				}
+				catch (NumberFormatException nfe) {
+					throw new Exception("NoOfQuestions should be number for row " + i);
+			    }
 
 				if (noOfQuestionsDb != noQ) {
-					throw new Exception("Excel NoOfQuestions doesnot match with database for row" + i);
+					throw new Exception("Excel NoOfQuestions doesnot match with database for row " + i);
 				}
 
-				oneExcelEntity.setTotalQuestions(noQ.toString());
+				oneExcelEntity.setTotalQuestions(noQuestion);
 
-				oneExcelEntity.setEmailId(row.getCell(12).getStringCellValue());
-				oneExcelEntity.setRedirectDomain(row.getCell(13).getStringCellValue());
-				oneExcelEntity.setTestCode(row.getCell(14).getStringCellValue());
+				oneExcelEntity.setEmailId(getFormattedCellValue(row.getCell(12)));
+				oneExcelEntity.setRedirectDomain(getFormattedCellValue(row.getCell(13)));
+				oneExcelEntity.setTestCode(getFormattedCellValue(row.getCell(14)));
 
-				oneExcelEntity.setQuest1(row.getCell(15).getStringCellValue());
-				oneExcelEntity.setQuest2(row.getCell(16).getStringCellValue());
-				oneExcelEntity.setQuest3(row.getCell(17).getStringCellValue());
-				oneExcelEntity.setQuest4(row.getCell(18).getStringCellValue());
-				oneExcelEntity.setQuest5(row.getCell(19).getStringCellValue());
-				oneExcelEntity.setQuest6(row.getCell(20).getStringCellValue());
-				oneExcelEntity.setQuest7(row.getCell(21).getStringCellValue());
-				oneExcelEntity.setQuest8(row.getCell(22).getStringCellValue());
-				oneExcelEntity.setQuest9(row.getCell(23).getStringCellValue());
+				oneExcelEntity.setQuest1(getFormattedCellValue(row.getCell(15)));
+				oneExcelEntity.setQuest2(getFormattedCellValue(row.getCell(16)));
+				oneExcelEntity.setQuest3(getFormattedCellValue(row.getCell(17)));
+				oneExcelEntity.setQuest4(getFormattedCellValue(row.getCell(18)));
+				oneExcelEntity.setQuest5(getFormattedCellValue(row.getCell(19)));
+				oneExcelEntity.setQuest6(getFormattedCellValue(row.getCell(20)));
+				oneExcelEntity.setQuest7(getFormattedCellValue(row.getCell(21)));
+				oneExcelEntity.setQuest8(getFormattedCellValue(row.getCell(22)));
+				oneExcelEntity.setQuest9(getFormattedCellValue(row.getCell(23)));
 
-				oneExcelEntity.setQuest10(checkIfCellBlank(row.getCell(24)));
-				oneExcelEntity.setQuest11(checkIfCellBlank(row.getCell(25)));
-				oneExcelEntity.setQuest12(checkIfCellBlank(row.getCell(26)));
-				oneExcelEntity.setQuest13(checkIfCellBlank(row.getCell(27)));
-				oneExcelEntity.setQuest14(checkIfCellBlank(row.getCell(28)));
-				oneExcelEntity.setQuest15(checkIfCellBlank(row.getCell(29)));
+				oneExcelEntity.setQuest10(getFormattedCellValue(row.getCell(24)));
+				oneExcelEntity.setQuest11(getFormattedCellValue(row.getCell(25)));
+				oneExcelEntity.setQuest12(getFormattedCellValue(row.getCell(26)));
+				oneExcelEntity.setQuest13(getFormattedCellValue(row.getCell(27)));
+				oneExcelEntity.setQuest14(getFormattedCellValue(row.getCell(28)));
+				oneExcelEntity.setQuest15(getFormattedCellValue(row.getCell(29)));
 
-				oneExcelEntity.setQuest16(checkIfCellBlank(row.getCell(30)));
-				oneExcelEntity.setQuest17(checkIfCellBlank(row.getCell(31)));
-				oneExcelEntity.setQuest18(checkIfCellBlank(row.getCell(32)));
-				oneExcelEntity.setQuest19(checkIfCellBlank(row.getCell(33)));
-				oneExcelEntity.setQuest20(checkIfCellBlank(row.getCell(34)));
-				oneExcelEntity.setQuest21(checkIfCellBlank(row.getCell(35)));
+				oneExcelEntity.setQuest16(getFormattedCellValue(row.getCell(30)));
+				oneExcelEntity.setQuest17(getFormattedCellValue(row.getCell(31)));
+				oneExcelEntity.setQuest18(getFormattedCellValue(row.getCell(32)));
+				oneExcelEntity.setQuest19(getFormattedCellValue(row.getCell(33)));
+				oneExcelEntity.setQuest20(getFormattedCellValue(row.getCell(34)));
+				oneExcelEntity.setQuest21(getFormattedCellValue(row.getCell(35)));
 
-				oneExcelEntity.setQuest22(checkIfCellBlank(row.getCell(36)));
-				oneExcelEntity.setQuest23(checkIfCellBlank(row.getCell(37)));
-				oneExcelEntity.setQuest24(checkIfCellBlank(row.getCell(38)));
-				oneExcelEntity.setQuest25(checkIfCellBlank(row.getCell(39)));
-				oneExcelEntity.setQuest26(checkIfCellBlank(row.getCell(40)));
-				oneExcelEntity.setQuest27(checkIfCellBlank(row.getCell(41)));
-				oneExcelEntity.setQuest28(checkIfCellBlank(row.getCell(42)));
-				oneExcelEntity.setQuest29(checkIfCellBlank(row.getCell(43)));
-				oneExcelEntity.setQuest30(checkIfCellBlank(row.getCell(44)));
+				oneExcelEntity.setQuest22(getFormattedCellValue(row.getCell(36)));
+				oneExcelEntity.setQuest23(getFormattedCellValue(row.getCell(37)));
+				oneExcelEntity.setQuest24(getFormattedCellValue(row.getCell(38)));
+				oneExcelEntity.setQuest25(getFormattedCellValue(row.getCell(39)));
+				oneExcelEntity.setQuest26(getFormattedCellValue(row.getCell(40)));
+				oneExcelEntity.setQuest27(getFormattedCellValue(row.getCell(41)));
+				oneExcelEntity.setQuest28(getFormattedCellValue(row.getCell(42)));
+				oneExcelEntity.setQuest29(getFormattedCellValue(row.getCell(43)));
+				oneExcelEntity.setQuest30(getFormattedCellValue(row.getCell(44)));
 
-				oneExcelEntity.setQuest31(checkIfCellBlank(row.getCell(45)));
-				oneExcelEntity.setQuest32(checkIfCellBlank(row.getCell(46)));
-				oneExcelEntity.setQuest33(checkIfCellBlank(row.getCell(47)));
-				oneExcelEntity.setQuest34(checkIfCellBlank(row.getCell(48)));
-				oneExcelEntity.setQuest35(checkIfCellBlank(row.getCell(49)));
-				oneExcelEntity.setQuest36(checkIfCellBlank(row.getCell(50)));
-				oneExcelEntity.setQuest37(checkIfCellBlank(row.getCell(51)));
-				oneExcelEntity.setQuest38(checkIfCellBlank(row.getCell(52)));
-				oneExcelEntity.setQuest39(checkIfCellBlank(row.getCell(53)));
-				oneExcelEntity.setQuest40(checkIfCellBlank(row.getCell(54)));
+				oneExcelEntity.setQuest31(getFormattedCellValue(row.getCell(45)));
+				oneExcelEntity.setQuest32(getFormattedCellValue(row.getCell(46)));
+				oneExcelEntity.setQuest33(getFormattedCellValue(row.getCell(47)));
+				oneExcelEntity.setQuest34(getFormattedCellValue(row.getCell(48)));
+				oneExcelEntity.setQuest35(getFormattedCellValue(row.getCell(49)));
+				oneExcelEntity.setQuest36(getFormattedCellValue(row.getCell(50)));
+				oneExcelEntity.setQuest37(getFormattedCellValue(row.getCell(51)));
+				oneExcelEntity.setQuest38(getFormattedCellValue(row.getCell(52)));
+				oneExcelEntity.setQuest39(getFormattedCellValue(row.getCell(53)));
+				oneExcelEntity.setQuest40(getFormattedCellValue(row.getCell(54)));
 
-				oneExcelEntity.setQuest41(checkIfCellBlank(row.getCell(55)));
-				oneExcelEntity.setQuest42(checkIfCellBlank(row.getCell(56)));
-				oneExcelEntity.setQuest43(checkIfCellBlank(row.getCell(57)));
-				oneExcelEntity.setQuest44(checkIfCellBlank(row.getCell(58)));
-				oneExcelEntity.setQuest45(checkIfCellBlank(row.getCell(59)));
-				oneExcelEntity.setQuest46(checkIfCellBlank(row.getCell(60)));
-				oneExcelEntity.setQuest47(checkIfCellBlank(row.getCell(61)));
-				oneExcelEntity.setQuest48(checkIfCellBlank(row.getCell(62)));
-				oneExcelEntity.setQuest49(checkIfCellBlank(row.getCell(63)));
-				oneExcelEntity.setQuest50(checkIfCellBlank(row.getCell(64)));
+				oneExcelEntity.setQuest41(getFormattedCellValue(row.getCell(55)));
+				oneExcelEntity.setQuest42(getFormattedCellValue(row.getCell(56)));
+				oneExcelEntity.setQuest43(getFormattedCellValue(row.getCell(57)));
+				oneExcelEntity.setQuest44(getFormattedCellValue(row.getCell(58)));
+				oneExcelEntity.setQuest45(getFormattedCellValue(row.getCell(59)));
+				oneExcelEntity.setQuest46(getFormattedCellValue(row.getCell(60)));
+				oneExcelEntity.setQuest47(getFormattedCellValue(row.getCell(61)));
+				oneExcelEntity.setQuest48(getFormattedCellValue(row.getCell(62)));
+				oneExcelEntity.setQuest49(getFormattedCellValue(row.getCell(63)));
+				oneExcelEntity.setQuest50(getFormattedCellValue(row.getCell(64)));
 
-				oneExcelEntity.setQuest51(checkIfCellBlank(row.getCell(65)));
-				oneExcelEntity.setQuest52(checkIfCellBlank(row.getCell(66)));
-				oneExcelEntity.setQuest53(checkIfCellBlank(row.getCell(67)));
-				oneExcelEntity.setQuest54(checkIfCellBlank(row.getCell(68)));
-				oneExcelEntity.setQuest55(checkIfCellBlank(row.getCell(69)));
-				oneExcelEntity.setQuest56(checkIfCellBlank(row.getCell(70)));
-				oneExcelEntity.setQuest57(checkIfCellBlank(row.getCell(71)));
-				oneExcelEntity.setQuest58(checkIfCellBlank(row.getCell(72)));
-				oneExcelEntity.setQuest59(checkIfCellBlank(row.getCell(73)));
-				oneExcelEntity.setQuest60(checkIfCellBlank(row.getCell(74)));
+				oneExcelEntity.setQuest51(getFormattedCellValue(row.getCell(65)));
+				oneExcelEntity.setQuest52(getFormattedCellValue(row.getCell(66)));
+				oneExcelEntity.setQuest53(getFormattedCellValue(row.getCell(67)));
+				oneExcelEntity.setQuest54(getFormattedCellValue(row.getCell(68)));
+				oneExcelEntity.setQuest55(getFormattedCellValue(row.getCell(69)));
+				oneExcelEntity.setQuest56(getFormattedCellValue(row.getCell(70)));
+				oneExcelEntity.setQuest57(getFormattedCellValue(row.getCell(71)));
+				oneExcelEntity.setQuest58(getFormattedCellValue(row.getCell(72)));
+				oneExcelEntity.setQuest59(getFormattedCellValue(row.getCell(73)));
+				oneExcelEntity.setQuest60(getFormattedCellValue(row.getCell(74)));
 
-				oneExcelEntity.setQuest61(checkIfCellBlank(row.getCell(75)));
-				oneExcelEntity.setQuest62(checkIfCellBlank(row.getCell(76)));
-				oneExcelEntity.setQuest63(checkIfCellBlank(row.getCell(77)));
-				oneExcelEntity.setQuest64(checkIfCellBlank(row.getCell(78)));
-				oneExcelEntity.setQuest65(checkIfCellBlank(row.getCell(79)));
-				oneExcelEntity.setQuest66(checkIfCellBlank(row.getCell(80)));
-				oneExcelEntity.setQuest67(checkIfCellBlank(row.getCell(81)));
-				oneExcelEntity.setQuest68(checkIfCellBlank(row.getCell(82)));
-				oneExcelEntity.setQuest69(checkIfCellBlank(row.getCell(83)));
-				oneExcelEntity.setQuest70(checkIfCellBlank(row.getCell(84)));
+				oneExcelEntity.setQuest61(getFormattedCellValue(row.getCell(75)));
+				oneExcelEntity.setQuest62(getFormattedCellValue(row.getCell(76)));
+				oneExcelEntity.setQuest63(getFormattedCellValue(row.getCell(77)));
+				oneExcelEntity.setQuest64(getFormattedCellValue(row.getCell(78)));
+				oneExcelEntity.setQuest65(getFormattedCellValue(row.getCell(79)));
+				oneExcelEntity.setQuest66(getFormattedCellValue(row.getCell(80)));
+				oneExcelEntity.setQuest67(getFormattedCellValue(row.getCell(81)));
+				oneExcelEntity.setQuest68(getFormattedCellValue(row.getCell(82)));
+				oneExcelEntity.setQuest69(getFormattedCellValue(row.getCell(83)));
+				oneExcelEntity.setQuest70(getFormattedCellValue(row.getCell(84)));
 
-				oneExcelEntity.setQuest71(checkIfCellBlank(row.getCell(85)));
-				oneExcelEntity.setQuest72(checkIfCellBlank(row.getCell(86)));
-				oneExcelEntity.setQuest73(checkIfCellBlank(row.getCell(87)));
-				oneExcelEntity.setQuest74(checkIfCellBlank(row.getCell(88)));
-				oneExcelEntity.setQuest75(checkIfCellBlank(row.getCell(89)));
-				oneExcelEntity.setQuest76(checkIfCellBlank(row.getCell(90)));
-				oneExcelEntity.setQuest77(checkIfCellBlank(row.getCell(91)));
-				oneExcelEntity.setQuest78(checkIfCellBlank(row.getCell(92)));
-				oneExcelEntity.setQuest79(checkIfCellBlank(row.getCell(93)));
-				oneExcelEntity.setQuest70(checkIfCellBlank(row.getCell(94)));
+				oneExcelEntity.setQuest71(getFormattedCellValue(row.getCell(85)));
+				oneExcelEntity.setQuest72(getFormattedCellValue(row.getCell(86)));
+				oneExcelEntity.setQuest73(getFormattedCellValue(row.getCell(87)));
+				oneExcelEntity.setQuest74(getFormattedCellValue(row.getCell(88)));
+				oneExcelEntity.setQuest75(getFormattedCellValue(row.getCell(89)));
+				oneExcelEntity.setQuest76(getFormattedCellValue(row.getCell(90)));
+				oneExcelEntity.setQuest77(getFormattedCellValue(row.getCell(91)));
+				oneExcelEntity.setQuest78(getFormattedCellValue(row.getCell(92)));
+				oneExcelEntity.setQuest79(getFormattedCellValue(row.getCell(93)));
+				oneExcelEntity.setQuest70(getFormattedCellValue(row.getCell(94)));
 
-				oneExcelEntity.setQuest81(checkIfCellBlank(row.getCell(95)));
-				oneExcelEntity.setQuest82(checkIfCellBlank(row.getCell(96)));
-				oneExcelEntity.setQuest83(checkIfCellBlank(row.getCell(97)));
-				oneExcelEntity.setQuest84(checkIfCellBlank(row.getCell(98)));
-				oneExcelEntity.setQuest85(checkIfCellBlank(row.getCell(99)));
-				oneExcelEntity.setQuest86(checkIfCellBlank(row.getCell(100)));
-				oneExcelEntity.setQuest87(checkIfCellBlank(row.getCell(111)));
-				oneExcelEntity.setQuest88(checkIfCellBlank(row.getCell(112)));
-				oneExcelEntity.setQuest89(checkIfCellBlank(row.getCell(113)));
-				oneExcelEntity.setQuest90(checkIfCellBlank(row.getCell(114)));
+				oneExcelEntity.setQuest81(getFormattedCellValue(row.getCell(95)));
+				oneExcelEntity.setQuest82(getFormattedCellValue(row.getCell(96)));
+				oneExcelEntity.setQuest83(getFormattedCellValue(row.getCell(97)));
+				oneExcelEntity.setQuest84(getFormattedCellValue(row.getCell(98)));
+				oneExcelEntity.setQuest85(getFormattedCellValue(row.getCell(99)));
+				oneExcelEntity.setQuest86(getFormattedCellValue(row.getCell(100)));
+				oneExcelEntity.setQuest87(getFormattedCellValue(row.getCell(111)));
+				oneExcelEntity.setQuest88(getFormattedCellValue(row.getCell(112)));
+				oneExcelEntity.setQuest89(getFormattedCellValue(row.getCell(113)));
+				oneExcelEntity.setQuest90(getFormattedCellValue(row.getCell(114)));
 
-				oneExcelEntity.setQuest91(checkIfCellBlank(row.getCell(115)));
-				oneExcelEntity.setQuest92(checkIfCellBlank(row.getCell(116)));
-				oneExcelEntity.setQuest93(checkIfCellBlank(row.getCell(117)));
-				oneExcelEntity.setQuest94(checkIfCellBlank(row.getCell(118)));
-				oneExcelEntity.setQuest95(checkIfCellBlank(row.getCell(119)));
-				oneExcelEntity.setQuest96(checkIfCellBlank(row.getCell(120)));
-				oneExcelEntity.setQuest97(checkIfCellBlank(row.getCell(121)));
-				oneExcelEntity.setQuest98(checkIfCellBlank(row.getCell(122)));
-				oneExcelEntity.setQuest99(checkIfCellBlank(row.getCell(123)));
-				oneExcelEntity.setQuest100(checkIfCellBlank(row.getCell(124)));
+				oneExcelEntity.setQuest91(getFormattedCellValue(row.getCell(115)));
+				oneExcelEntity.setQuest92(getFormattedCellValue(row.getCell(116)));
+				oneExcelEntity.setQuest93(getFormattedCellValue(row.getCell(117)));
+				oneExcelEntity.setQuest94(getFormattedCellValue(row.getCell(118)));
+				oneExcelEntity.setQuest95(getFormattedCellValue(row.getCell(119)));
+				oneExcelEntity.setQuest96(getFormattedCellValue(row.getCell(120)));
+				oneExcelEntity.setQuest97(getFormattedCellValue(row.getCell(121)));
+				oneExcelEntity.setQuest98(getFormattedCellValue(row.getCell(122)));
+				oneExcelEntity.setQuest99(getFormattedCellValue(row.getCell(123)));
+				oneExcelEntity.setQuest100(getFormattedCellValue(row.getCell(124)));
 
 				System.out.println("----------");
 				// }
@@ -334,6 +338,33 @@ public class ResultServiceImpl implements ResultService {
 		else
 			return "";
 	}
+	
+	
+	public String getFormattedCellValue(XSSFCell cell) {
+
+		String cellValue="";
+		if (cell != null && cell.toString() != "")
+		{
+			int cellType = cell.getCellType();
+			if (cellType == 1) 
+			{
+				cellValue=cell.getStringCellValue();
+			} 
+			else
+			{
+				Integer intVal = (int) cell.getNumericCellValue();
+				cellValue=intVal.toString();
+			}
+		}
+		else
+			cellValue="";  //for blank/null cells
+		
+		
+		
+		
+		return cellValue;
+	}
+	
 
 	@Override
 	public List<ResultPdfResponse> getResultParams(int pmapId, int studentid) {
@@ -454,7 +485,7 @@ public class ResultServiceImpl implements ResultService {
 				jsonObjectData.put("studentname", pojo.getStudentname());
 				jsonObjectData.put("emailid", pojo.getEmailid());
 				jsonObjectData.put("actions",
-						"<a href=''type='button'  data-toggle='modal' data-target='#mailModal' class='btn btn-primary btn-sm'  title='Resend Result'>Resend Result</a>");
+						"<a href=''type='button'  data-toggle='modal' data-target='#mailModal' class='btn btn-primary btn-sm resendResult'  title='Resend Result' id="+pojo.getId()+"  pmapid="+pojo.getPmapid()+" >Resend Result</a>");
 				jsonObjectData.put(pojo.getCategory_name(), marks);
 
 			} else {
@@ -515,6 +546,15 @@ public class ResultServiceImpl implements ResultService {
 
 		flag = resultRepository.AllResultColToRow(pmapId);
 
+		return flag;
+	}
+
+	@Override
+	public boolean resendAllToEmailQueue(String pmapId) {
+		// TODO Auto-generated method stub
+		boolean flag;
+		
+		flag=resultRepository.insertInToEmailQueue(pmapId);
 		return flag;
 	}
 

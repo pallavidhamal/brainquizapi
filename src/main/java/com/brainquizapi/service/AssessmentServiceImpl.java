@@ -300,13 +300,17 @@ public class AssessmentServiceImpl implements AssessmentService {
 		
 		logger.info("*****AssessmentServiceImpl getAllPartnerAssessmentMaps*****");
 		
-		List<PartnerAssessmentMapEntity> list = partnerAssessmentMapRepository.findAllByIsdeleted("N");
+		//List<PartnerAssessmentMapEntity> list = partnerAssessmentMapRepository.findAllByIsdeleted("N");
+		
+		List<PartnerAssessmentMapEntity> list = partnerAssessmentMapRepository.findAllMappingByIsdeleted("N");
 		
 		List<PartnerAssessmentResponse> finalList = new ArrayList<>();
 		
 		for(PartnerAssessmentMapEntity ent: list) {
 			
 			PartnerAssessmentResponse resp = new PartnerAssessmentResponse();
+			
+			//id , alt_email , from_date ,partner_assessment_name, to_date , fk_assessment , fk_partner ,created_by , created_date ,is_deleted , updated_by , updated_date
 			
 			resp.setAltemail(ent.getAltEmailId());
 			resp.setAssessmentid(String.valueOf(ent.getAssessment().getId()));
@@ -339,9 +343,10 @@ public class AssessmentServiceImpl implements AssessmentService {
 			
 			resp.setId(String.valueOf(ent.getId()));
 			resp.setTestName(ent.getTestName());
-			DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");  
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
 			String strDate = dateFormat.format(ent.getCreatedate());  
-			
+			logger.info("ASSESS DATE"+strDate);
+
 			resp.setCreateDate(strDate);
 			finalList.add(resp);
 		}

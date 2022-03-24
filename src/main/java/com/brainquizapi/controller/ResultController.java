@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.BaseResponse;
 import com.brainquizapi.response.ExcelDataResponse;
+import com.brainquizapi.response.ResultPdfResponse;
 import com.brainquizapi.service.EmailService;
 import com.brainquizapi.service.ResultService;
 import com.brainquizapi.util.StringsUtils;
@@ -92,27 +93,70 @@ public class ResultController {
 			}
 	}
 	
+	@PostMapping(value = "/resendAllToEmailQueue" )
+	public ResponseEntity<BaseResponse> resendAllToEmailQueue (@RequestBody PartnerRequest partnerRequest,HttpServletRequest request) {
+		
+		
+		response = new BaseResponse();
+		
+	    try {
+	    	
+	    	String pamapId=partnerRequest.getPamapId();
+	    	//List<UniversityStudDocResponse> List = resultService.uploadResultFile(resultFile);
+	    	resultService.resendAllToEmailQueue(pamapId);
+			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			response.setRespData(null);
+				
+			return ResponseEntity.ok(response);
+					
+			}catch (Exception e) {
+				
+				logger.error(e.getMessage()); //BAD creds message comes from here
+				
+				response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+				response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+				response.setRespData(e.getMessage());
+				
+				return ResponseEntity.badRequest().body(response);
+				
+			}
+	}
+	
+	
+	
+	
 	
 	@PostMapping("/exportresultpdf")
-    public void exportToPDF(HttpServletResponse response ,HttpServletRequest request) throws Exception {
+    public ResponseEntity<BaseResponse> exportToPDF(@RequestBody PartnerRequest partnerRequest,HttpServletRequest request) throws Exception {
 		
 		logger.info("*****ResultController exportResultPdf*****");
-		
+		response = new BaseResponse();
 		try {
 			
+			Long id=partnerRequest.getId();
+			String pamapId=partnerRequest.getPamapId();
+			int pmapId=Integer.parseInt(pamapId);
+			String emailIds=partnerRequest.getEmailid();
 			
+			List<ResultPdfResponse> result = resultService.getResultParams(pmapId,id.intValue());
+			emailService.exportResult(result,emailIds);
 			
-		//	List<ResultPdfResponse> result = resultService.getResultParams();
-			//emailService.exportResult(response, result);
-		//	emailService.exportResult( result);
+			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
+			response.setRespData(null);
 			
-			
-			
+			return ResponseEntity.ok(response);
 			
 		}catch(Exception e) {
         	
-        	logger.info("-----imageLocation---------------"+e.getMessage());
-        }
+			logger.error(e.getMessage()); //BAD creds message comes from here
+			
+			response.setRespCode(StringsUtils.Response.FAILURE_RESP_CODE);
+			response.setRespMessage(StringsUtils.Response.FAILURE_RESP_MSG);
+			response.setRespData(e.getMessage());
+			
+			return ResponseEntity.badRequest().body(response);        }
 	}
 	
 	/*

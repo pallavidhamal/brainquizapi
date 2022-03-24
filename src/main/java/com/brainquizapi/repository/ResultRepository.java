@@ -29,9 +29,9 @@ import org.springframework.stereotype.Repository;
 		List<Map<String, Object>> validateExcel(String pmapId);
 		
 		
-		@Query(value=" select Ifnull ( finVal.student_name ,'') as studentname ,Ifnull ( finVal.email_id ,'') as emailid ,Ifnull ( finVal.marks ,'') as marks, "
+		@Query(value=" select finVal.studentid as id,finVal.pmapid,Ifnull ( finVal.student_name ,'') as studentname ,Ifnull ( finVal.email_id ,'') as emailid ,Ifnull ( finVal.marks ,'') as marks, "
 				+ " Ifnull ( finVal.categoryID ,'') as categoryID,Ifnull ( finVal.category_name ,'') as  category_name ,Ifnull ( finVal.colors ,'') as colors "
-				+ " from ( SELECT  aa.student_name , aa.email_id , sum(Ifnull(score,0)) as marks , aa.categoryID  , cmst.id ,cmst.category_name , "
+				+ " from ( SELECT  aa.studentid as studentid,aa.pmapid,aa.student_name , aa.email_id , sum(Ifnull(score,0)) as marks , aa.categoryID  , cmst.id ,cmst.category_name , "
 				+ " case when sum(Ifnull(score,0)) BETWEEN cmst.red_from AND cmst.red_to then 'red'  "
 				+ "		 when sum(Ifnull(score,0)) BETWEEN cmst.green_from AND cmst.green_to then 'green' "
 				+ "      when sum(Ifnull(score,0)) BETWEEN cmst.amber_from AND cmst.amber_to then 'amber' end as colors FROM resultcatscore as aa  "
@@ -65,7 +65,16 @@ import org.springframework.stereotype.Repository;
 		Integer updateEmailQueueCount(int pmapId,int studentid);
 		
 		
+	/*
+	 * @Transactional
+	 * 
+	 * @Query(value =
+	 * " insert into  EmailQueue(studentid,email_id,partnerId,assessmentId,pmapId)  SELECT studentid,email_id,partnerId,assessmentId,pmapid FROM brainquiz.resultcatscore where pmapid=? group by studentid "
+	 * , nativeQuery = true) Integer insertInToEmailQueue(String pmapId);
+	 */
 		
 		
 		
+		@Query(value="Call InsertResndEmailQueue(?)", nativeQuery = true)
+		boolean insertInToEmailQueue(String pmapId);
 }

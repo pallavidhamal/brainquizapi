@@ -11,10 +11,12 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.brainquizapi.request.PartnerAssessmentRequest;
+import com.brainquizapi.request.PartnerRequest;
 import com.brainquizapi.response.AllCandidateResultResponse;
 import com.brainquizapi.response.BaseResponse;
 import com.brainquizapi.response.ExcelDataResponse;
@@ -37,5 +39,7 @@ public interface ResultService {
 			long assessmentid, long partnerAssessmentid, HttpServletRequest request) throws Exception;
 	
 	boolean ResultCalculation(String pmapId);
+	
+	public boolean resendAllToEmailQueue (String pmapId);
 
 }
