@@ -19,4 +19,6 @@ public class ResultPdfResponse {
 	private String testName;
 	private String testCode;
 	private String subDate;
+	private String colors;
+
 }

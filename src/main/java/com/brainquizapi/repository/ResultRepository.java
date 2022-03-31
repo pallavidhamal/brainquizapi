@@ -19,10 +19,28 @@ import org.springframework.stereotype.Repository;
 	@Repository
 	public interface ResultRepository extends JpaRepository<AllresultEntity, Long> {
 
-		@Query(value="SELECT cm.category_name as categoryName,pmapId,studentid,email_id as emailId,categoryId,sum(score) as score,student_name as studentName "
-				+ ",test_name as testName, test_code as testCode, sub_dt as subDate "
-				+ "FROM resultcatscore rs, category_master cm where rs.categoryID=cm.id and pmapId=? and studentid=? group by categoryID",nativeQuery = true)
-		List<Map<String, String>> getResultParams(int pmapId,int studentid);
+	
+	/*
+	 * @Query(
+	 * value="SELECT cm.category_name as categoryName,pmapId,studentid,email_id as emailId,categoryId,sum(score) as score,student_name as studentName "
+	 * + ",test_name as testName, test_code as testCode, sub_dt as subDate " +
+	 * "FROM resultcatscore rs, category_master cm where rs.categoryID=cm.id and pmapId=? and studentid=? group by categoryID"
+	 * ,nativeQuery = true) List<Map<String, String>> getResultParams(int pmapId,int
+	 * studentid);
+	 */
+	 
+		
+		
+	
+	  @Query(
+	  value="SELECT cm.category_name as categoryName,pmapId,studentid,email_id as emailId,categoryId,sum(score) as score,student_name as studentName "
+	  + ",test_name as testName, test_code as testCode, sub_dt as subDate "
+	  +", case when sum(Ifnull(score,0)) BETWEEN cm.red_from AND cm.red_to then 'red'  "
+	  +" when sum(Ifnull(score,0)) BETWEEN cm.green_from AND cm.green_to then 'green' "
+	  +"  when sum(Ifnull(score,0)) BETWEEN cm.amber_from AND cm.amber_to then 'amber' end as colors "
+	  +" FROM resultcatscore rs, category_master cm where rs.categoryID=cm.id and pmapId=? and studentid=? group by categoryID"
+	  ,nativeQuery = true) List<Map<String, String>> getResultParams(int pmapId,int  studentid);
+	 
 		
 
 		@Query(value="Call validateExcel(?)", nativeQuery = true)
@@ -77,4 +95,9 @@ import org.springframework.stereotype.Repository;
 		
 		@Query(value="Call InsertResndEmailQueue(?)", nativeQuery = true)
 		boolean insertInToEmailQueue(String pmapId);
+		
+		@Query(value="Call UpdateMailSentMappings()", nativeQuery = true)
+		boolean UpdateMailSentMappings();
+		
+		
 }

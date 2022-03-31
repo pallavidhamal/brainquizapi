@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,15 @@ import com.brainquizapi.response.EmailQueueResponse;
 import com.brainquizapi.response.ResultPdfResponse;
 import com.brainquizapi.service.EmailService;
 import com.brainquizapi.service.ResultService;
+import com.brainquizapi.service.ResultServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 //import time;
 @Service
 public class ResultEmailScheduler {
 	
+	
+	private static final Logger logger = LoggerFactory.getLogger(ResultServiceImpl.class);
+
 	@Autowired
 	ResultRepository resultRepository;
 	
@@ -31,7 +37,7 @@ public class ResultEmailScheduler {
 	@Autowired
 	EmailService emailService;
 	
-	@Autowired
+	@Autowired 
 	EmailQueueStatusRepository emailQueueStatusRepository;
 	
 	@Scheduled(cron = "${ResultEmailScheduler.cronTime}")
@@ -78,7 +84,10 @@ public class ResultEmailScheduler {
 			
 			 iststus=emailQueueStatusRepository.updateEmailQueueStatus("listening");
 
-			
+			boolean resp=resultRepository.UpdateMailSentMappings();
+			  
+			logger.info("*****resultRepository.UpdateMailSentMappings*****"+resp);
+
 		}
 		else
 		{

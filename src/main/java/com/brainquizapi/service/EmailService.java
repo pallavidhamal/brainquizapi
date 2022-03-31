@@ -119,7 +119,7 @@ public class EmailService {
 	//public void exportResult(HttpServletResponse response,List<ResultPdfResponse> result) throws Exception {
 	public void exportResult(List<ResultPdfResponse> result,String resendEmails) throws Exception {
 		logger.info("*****EmailService exportResult*****");
-		
+		StringBuffer reason = null;
 		String to = "";//"scubeuser8@gmail.com";
 		
 		for(ResultPdfResponse resp: result) {
@@ -149,7 +149,9 @@ public class EmailService {
 		properties.put("mail.smtp.ssl.enable", "true");
 		properties.put("mail.smtp.auth", "true");
 		
-		String vmFileContent = "Temp COntent";
+		String vmFileContent = "Dear Candidate,  \r\r" +
+				  " PFA result for quiz. \r\r"
+				  + "Team Brainquiz";
 		
 		String subject = "BrainQuiz Result";
 		
@@ -243,9 +245,30 @@ public class EmailService {
 //	            Transport.send(message);
 			System.out.println("Sent message successfully....");
 			
-		}catch (MessagingException e) {
+		}catch (Exception ex) {       //MessagingException
 
-			throw new RuntimeException(e);
+			//throw new RuntimeException(e);
+			StringBuffer exception = new StringBuffer(ex.getMessage().toString());
+			  
+            if (exception.indexOf("ConnectException") >= 0)      // connection problem.
+            {
+                reason = new StringBuffer(" Unable to Connect Mail server");
+            }
+            else if (exception.indexOf("SendFailedException") >= 0)      // Wrong To Address 
+            {
+                reason = new StringBuffer("Wrong To Mail address");
+            }
+            else if (exception.indexOf("FileNotFoundException") >= 0)    //File Not Found at Specified Location
+            {
+                reason = new StringBuffer("File Not Found at Specific location");                   
+            }
+            else        // Email has not been sent.
+            {
+                reason = new StringBuffer("Email has not been sent.");
+            }
+			
+    		logger.info("*****EmailService exception*****"+reason);
+
 		}
 		
 	}
@@ -259,6 +282,7 @@ public class EmailService {
 			String testName="";
 			String testCode="";
 			String subDate="";
+			String colors="";
 			
 			for(ResultPdfResponse resp: result) {
 				stuName = resp.getStudentName();
@@ -443,7 +467,16 @@ public class EmailService {
 	        	PdfPCell cell = new PdfPCell(new Paragraph(resp.getCategoryName()));
 	        	PdfPCell color = new PdfPCell(new Paragraph(""));
 	        	detailsTable.addCell(cell);
-	        	color.setBackgroundColor(Color.GREEN);
+	        	
+	        	if(resp.getColors().equals("red"))
+	        		 color.setBackgroundColor(Color.RED);
+				  else if(resp.getColors().equals("green"))
+				  color.setBackgroundColor(Color.GREEN);
+				  else
+				  color.setBackgroundColor(Color.YELLOW);
+				 
+	        	
+	        	
 	        	detailsTable.addCell(color);
 	        }
 	        
