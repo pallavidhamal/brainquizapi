@@ -20,5 +20,7 @@ public class ResultPdfResponse {
 	private String testCode;
 	private String subDate;
 	private String colors;
+    private String logoPath;
+
 
 }

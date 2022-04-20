@@ -33,12 +33,12 @@ import org.springframework.stereotype.Repository;
 		
 	
 	  @Query(
-	  value="SELECT cm.category_name as categoryName,pmapId,studentid,email_id as emailId,categoryId,sum(score) as score,student_name as studentName "
-	  + ",test_name as testName, test_code as testCode, sub_dt as subDate "
+	  value="SELECT cm.category_name as categoryName,pmapId,studentid,rs.email_id as emailId,categoryId,sum(score) as score,student_name as studentName "
+	  + ",test_name as testName, test_code as testCode, sub_dt as subDate ,pm.logo_path as logoPath "
 	  +", case when sum(Ifnull(score,0)) BETWEEN cm.red_from AND cm.red_to then 'red'  "
 	  +" when sum(Ifnull(score,0)) BETWEEN cm.green_from AND cm.green_to then 'green' "
 	  +"  when sum(Ifnull(score,0)) BETWEEN cm.amber_from AND cm.amber_to then 'amber' end as colors "
-	  +" FROM resultcatscore rs, category_master cm where rs.categoryID=cm.id and pmapId=? and studentid=? group by categoryID"
+	  +" FROM resultcatscore rs, category_master cm , partner_master pm where rs.categoryID=cm.id and rs.partnerId=pm.id and pmapId=? and studentid=? group by categoryID"
 	  ,nativeQuery = true) List<Map<String, String>> getResultParams(int pmapId,int  studentid);
 	 
 		

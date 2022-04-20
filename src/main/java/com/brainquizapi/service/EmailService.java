@@ -98,6 +98,10 @@ public class EmailService {
 	
 	@Value("${file.upload-dir}")
     private String logoimageLocation;
+	
+	@Value("${result.template-dir}")
+    private String templateLocation;
+	
 	/*
 	 * @Autowired VerificationRequestRepository verificationReqRepository;
 	 * 
@@ -121,10 +125,11 @@ public class EmailService {
 		logger.info("*****EmailService exportResult*****");
 		StringBuffer reason = null;
 		String to = "";//"scubeuser8@gmail.com";
+		String logoPath = "";
 		
 		for(ResultPdfResponse resp: result) {
 			to=resp.getEmailId();
-			
+			logoPath = resp.getLogoPath();
 			logger.info("*****b4TO MAIL ID*****"+to);
 
 			
@@ -283,12 +288,14 @@ public class EmailService {
 			String testCode="";
 			String subDate="";
 			String colors="";
+			String logoPath = "";
 			
 			for(ResultPdfResponse resp: result) {
 				stuName = resp.getStudentName();
 				testName = resp.getTestName();
 				testCode = resp.getTestCode();
 				subDate = resp.getSubDate();
+				 logoPath = resp.getLogoPath();
 				break;
 			}
 			
@@ -320,7 +327,10 @@ public class EmailService {
 			PdfWriter.getInstance(document, outputStream);
 			
 			Image img;
-			img = Image.getInstance(logoimageLocation+"/file/IMG_2021_09_24_16_12_34_1645430725137.jpg");
+			//img = Image.getInstance(logoimageLocation+"/file/IMG_2021_09_24_16_12_34_1645430725137.jpg");
+            img = Image.getInstance(this.logoimageLocation + "/" + logoPath);
+
+			
 			img.setAlignment(Element.ALIGN_LEFT);
 			img.scaleToFit(100,200); // width, height
 			
@@ -385,7 +395,9 @@ public class EmailService {
 //			
 			
 			Properties p = new Properties();
-			p.load(new FileInputStream("resultpdf.txt"));
+			//p.load(new FileInputStream("resultpdf.txt"));
+            p.load(new FileInputStream(this.templateLocation + "/resultpdf.txt"));
+
 		    String firstpara = p.getProperty("firstpara");
 		    String secondpara = p.getProperty("secondpara");
 		    String interpretation = p.getProperty("interpretation");
