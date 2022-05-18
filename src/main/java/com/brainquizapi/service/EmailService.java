@@ -475,6 +475,8 @@ public class EmailService {
 	        detailsTable.setWidths(new int[] {80,20});
 //	        detailsTable.setIndentationLeft(100);
 	        
+	        Color coloramber =new Color(255, 192, 0);
+	        
 	        for(ResultPdfResponse resp: result) {
 	        	PdfPCell cell = new PdfPCell(new Paragraph(resp.getCategoryName()));
 	        	PdfPCell color = new PdfPCell(new Paragraph(""));
@@ -485,7 +487,8 @@ public class EmailService {
 				  else if(resp.getColors().equals("green"))
 				  color.setBackgroundColor(Color.GREEN);
 				  else
-				  color.setBackgroundColor(Color.YELLOW);
+				 color.setBackgroundColor(coloramber);
+				//  color.setBackgroundColor(Color.YELLOW);
 				 
 	        	
 	        	
