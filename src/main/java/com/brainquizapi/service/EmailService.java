@@ -1,40 +1,18 @@
 
 package com.brainquizapi.service;
 
-import java.awt.Color;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Calendar;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 import javax.mail.BodyPart;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
@@ -44,63 +22,70 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
-import javax.servlet.http.HttpServletResponse;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.text.StyleConstants.FontConstants;
 
-import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.brainquizapi.response.ResultPdfResponse;
-import com.lowagie.text.BadElementException;
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.HeaderFooter;
-import com.lowagie.text.Image;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.Rectangle;
-import com.lowagie.text.Table;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
-import com.lowagie.text.pdf.draw.LineSeparator;
-import com.lowagie.text.pdf.draw.VerticalPositionMark;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.events.Event;
+import com.itextpdf.kernel.events.IEventHandler;
+import com.itextpdf.kernel.events.PdfDocumentEvent;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.ElementPropertyContainer;  
+import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.borders.GrooveBorder;
+import com.itextpdf.layout.borders.SolidBorder;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.HorizontalAlignment;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.properties.VerticalAlignment;
+import com.itextpdf.layout.Canvas;
 
-import javafx.scene.control.Tab;
-/*import com.scube.edu.model.BranchMasterEntity;
-import com.scube.edu.model.DocumentMaster;
-import com.scube.edu.model.PassingYearMaster;
-import com.scube.edu.model.SemesterEntity;
-import com.scube.edu.model.StreamMaster;
-import com.scube.edu.model.UserMasterEntity;
-import com.scube.edu.model.VerificationRequest;
-import com.scube.edu.repository.VerificationRequestRepository;
-import com.scube.edu.request.SendQueryFromHomeRequest;
-import com.scube.edu.response.UserResponse;
-import com.scube.edu.util.FileStorageService;*/
-
+@SuppressWarnings("unused")
 @Service
 public class EmailService {
 
-	Base64.Encoder baseEncoder = Base64.getEncoder();
+	private static PdfDocument pdfDoc;
+	private static Image image;
+	
+	
+Base64.Encoder baseEncoder = Base64.getEncoder();
 	
 	@Value("${file.upload-dir}")
     private String logoimageLocation;
 	
 	@Value("${result.template-dir}")
     private String templateLocation;
+	
+	@Value("${email.from.id}")
+    private String fromemail;
+	
+	@Value("${email.pwd}")	
+    private String emailpwd;
+	
+	@Value("${email.host}")
+    private String emailhost;
 	
 	/*
 	 * @Autowired VerificationRequestRepository verificationReqRepository;
@@ -125,11 +110,10 @@ public class EmailService {
 		logger.info("*****EmailService exportResult*****");
 		StringBuffer reason = null;
 		String to = "";//"scubeuser8@gmail.com";
-		String logoPath = "";
 		
 		for(ResultPdfResponse resp: result) {
 			to=resp.getEmailId();
-			logoPath = resp.getLogoPath();
+			
 			logger.info("*****b4TO MAIL ID*****"+to);
 
 			
@@ -143,9 +127,9 @@ public class EmailService {
 		}
 		
 		
-		String from = "scube.usr@gmail.com";
+	//	String from = fromemail;
 		
-		String host = "smtp.gmail.com";
+		String host = emailhost;
 		
 		Properties properties = System.getProperties();
 
@@ -164,7 +148,7 @@ public class EmailService {
 			protected PasswordAuthentication getPasswordAuthentication() {
 
 //				return new PasswordAuthentication("verify@educred.co.in", "EduCred$2021$");
-				return new PasswordAuthentication("scube.usr@gmail.com", "scube@1234");
+				return new PasswordAuthentication(fromemail, emailpwd);
 //	                return new PasswordAuthentication("resolution@educred.co.in", "EduCred$2021$");
 
 			}
@@ -203,7 +187,7 @@ public class EmailService {
 			Message message = new MimeMessage(session);
 			BodyPart messageBodyPart = new MimeBodyPart();
 			Multipart multipart = new MimeMultipart();
-			message.setFrom(new InternetAddress(from));
+			message.setFrom(new InternetAddress(fromemail));
 			
 			String[] recipientList = to.split(",");
 			String[] recipientArr = new String[recipientList.length];
@@ -217,13 +201,13 @@ public class EmailService {
             
             messageBodyPart = new MimeBodyPart();
 			messageBodyPart.setDataHandler(new DataHandler(dataSource));
-			messageBodyPart.setFileName("temp" + ".pdf");
+			messageBodyPart.setFileName("AssessmentResult" + ".pdf");
 			multipart.addBodyPart(textBodyPart);
 			multipart.addBodyPart(messageBodyPart);
 //			multipart.addBodyPart(imagePart);
 			message.setContent(multipart);
 			
-			InternetAddress iaSender = new InternetAddress(from);
+			InternetAddress iaSender = new InternetAddress(fromemail);
 		//	InternetAddress iaRecipient = new InternetAddress(to);
 
 			//String[] recipientList = to.split(",");
@@ -252,6 +236,8 @@ public class EmailService {
 			
 		}catch (Exception ex) {       //MessagingException
 
+			ex.printStackTrace();
+			
 			//throw new RuntimeException(e);
 			StringBuffer exception = new StringBuffer(ex.getMessage().toString());
 			  
@@ -278,128 +264,39 @@ public class EmailService {
 		
 	}
 	
+	
+
 	private void writeResultPdf(ByteArrayOutputStream outputStream,List<ResultPdfResponse> result) throws Exception {
 		
-		logger.info("writing result PDF--->");
-		
 		try {
+			
+			//System.out.println("hello"+result.size());
+			
 			String stuName="";
 			String testName="";
 			String testCode="";
 			String subDate="";
 			String colors="";
-			String logoPath = "";
+		
 			
 			for(ResultPdfResponse resp: result) {
 				stuName = resp.getStudentName();
 				testName = resp.getTestName();
 				testCode = resp.getTestCode();
 				subDate = resp.getSubDate();
-				 logoPath = resp.getLogoPath();
+				
 				break;
 			}
-			
-			Document document = new Document(PageSize.A4, 40, 40, 50, 7);
-			
-//			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("Rectagled.pdf"));
-			
-			// Set all required fonts here with appropriate names
-			Font fontBold15 = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
-			fontBold15.setSize(15);
-			fontBold15.setColor(Color.BLACK);
 
-			Font font12 = FontFactory.getFont(FontFactory.HELVETICA);
-			font12.setSize(12);
-			font12.setColor(Color.BLACK);
-
-			Font font11 = FontFactory.getFont(FontFactory.HELVETICA);
-			font11.setSize(11);
-			font11.setColor(Color.BLACK);
-
-			Font font9 = FontFactory.getFont(FontFactory.HELVETICA);
-			font9.setSize(9);
-			font9.setColor(Color.BLACK);
-			
-			Font fontBold13 = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
-			fontBold13.setSize(13);
-			fontBold13.setColor(Color.BLACK);
-
-			PdfWriter.getInstance(document, outputStream);
-			
-			Image img;
-			//img = Image.getInstance(logoimageLocation+"/file/IMG_2021_09_24_16_12_34_1645430725137.jpg");
-            img = Image.getInstance(this.logoimageLocation + "/" + logoPath);
-
-			
-			img.setAlignment(Element.ALIGN_LEFT);
-			img.scaleToFit(100,200); // width, height
-			
-			document.open();					
-			
-			document.add(img);
-			
-			Paragraph refNo = new Paragraph();
-			refNo.setAlignment(Paragraph.ALIGN_CENTER);
-			refNo.add(testName);
-			refNo.setFont(fontBold15);
-			
-			document.add(refNo);
-			
-			LineSeparator ls = new LineSeparator();
-	        document.add(new Chunk(ls));
-	        document.add(new Chunk(ls));
-	        
-	        document.add(Chunk.NEWLINE);
-	        document.add(Chunk.NEWLINE);
-	        
-	        PdfPTable heading1 = new PdfPTable(2);
-	        heading1.setWidthPercentage(100);
-	        heading1.setWidths(new int[] {50,50});
-	        
-	        PdfPCell contact = new PdfPCell(new Paragraph("Contact No:"));
-	        contact.setHorizontalAlignment(Element.ALIGN_LEFT);
-	        contact.setBorder(Rectangle.NO_BORDER);
-	        
-	        PdfPCell celll = new PdfPCell(new Paragraph(stuName));
-	        celll.setHorizontalAlignment(Element.ALIGN_LEFT);
-	        celll.setBorder(Rectangle.NO_BORDER);
-	        
-	        PdfPCell email = new PdfPCell(new Paragraph("info@graone.co.in"));
-	        email.setBorder(Rectangle.NO_BORDER);
-	        email.setHorizontalAlignment(Element.ALIGN_LEFT);
-	        PdfPCell emptyCell = new PdfPCell(new Paragraph(""));
-	        emptyCell.setBorder(Rectangle.NO_BORDER);
-	        
-	        heading1.addCell(contact);
-	        heading1.addCell(celll);
-	        heading1.addCell(email);
-	        heading1.addCell(emptyCell);
-	        
-	        document.add(heading1);
-			
-//			Paragraph heading1 = new Paragraph();
-//			heading1.setAlignment(Paragraph.ALIGN_CENTER);
-//			heading1.setFont(font12);
-////			heading1.setIndentationLeft(100);
-//			heading1.add(stuName); // dynamic value here
-//			heading1.add(Chunk.NEWLINE);
-//			heading1.add(Chunk.NEWLINE);
-//			
-//			document.add(heading1);
-			
-//			heading 1 = 
-//			dynamic greeting
-//			Dear < Name of the registered user>,
-//			first para
-//			dynamic indicator text
-//			
 			
 			Properties p = new Properties();
-			//p.load(new FileInputStream("resultpdf.txt"));
-            p.load(new FileInputStream(this.templateLocation + "/resultpdf.txt"));
-
+			p.load(new FileInputStream("resultpdf.txt"));
+			String firstpara1 = p.getProperty("firstpara1");
 		    String firstpara = p.getProperty("firstpara");
 		    String secondpara = p.getProperty("secondpara");
+		    String secondpara1 = p.getProperty("secondpara1");
+		    String thirdpara = p.getProperty("thirdpara");
+		    String thirdpara1 = p.getProperty("thirdpara1");
 		    String interpretation = p.getProperty("interpretation");
 		    String disclaimer = p.getProperty("disclaimer");
 		    String footer = p.getProperty("footer");
@@ -409,259 +306,1098 @@ public class EmailService {
 		    String keyinfo3 = p.getProperty("keyinfo3");
 //		    key colors
 		    String keycolor1 = p.getProperty("keycolor1");
+		    String keycolor11 = p.getProperty("keycolor11");
 		    String keycolor2 = p.getProperty("keycolor2");
+		    String keycolor22 = p.getProperty("keycolor22");
 		    String keycolor3 = p.getProperty("keycolor3");
+		    String keycolor33 = p.getProperty("keycolor33");
+		    String fourthpara = p.getProperty("fourthpara");
+		    String fourthpara1 = p.getProperty("fourthpara1");
+		    String fourthpara2 = p.getProperty("fourthpara2");
+		    String fourthpara3 = p.getProperty("fourthpara3");
+		    String fourthpara4 = p.getProperty("fourthpara4");
+		    String fourthpara5 = p.getProperty("fourthpara5");
 		    
-		    
-		    
-		 //   logger.info(firstpara);
-		//    logger.info(secondpara);
-		    
-//		    Paragraph userName = new Paragraph();
-//		    userName.setAlignment(Paragraph.ALIGN_CENTER);
-//		    userName.add("< NAME OF THE REGISTERED USER> \r");
-//		    userName.setFont(headFont);
-		    
-//		    document.add(userName);
-		    
-		    
-	        
-	        Paragraph greet = new Paragraph();
-	        greet.setAlignment(Paragraph.ALIGN_LEFT);
-	        greet.setIndentationLeft(100);
-	        greet.setIndentationRight(50);
-	        greet.add(stuName+" being assessed for "+testCode+" on "+subDate+"\r\n");
-	        greet.setFont(font11);
-	        greet.add(Chunk.NEWLINE);
-	        greet.add(Chunk.NEWLINE);
-	        
-	        Paragraph pa = new Paragraph();
-	        pa.setFont(font11);
-	        pa.setIndentationLeft(100);
-	        pa.setIndentationRight(50);
-	        pa.add("Dear "+stuName+",");
-	        pa.setAlignment(Paragraph.ALIGN_LEFT);
-	        pa.add(Chunk.NEWLINE);
-	        pa.add(Chunk.NEWLINE);
-	        
-	        document.add(greet);
-	        document.add(pa);
-	        
-	        Paragraph para1 = new Paragraph();
-	        para1.setAlignment(Paragraph.ALIGN_LEFT);
-	        para1.setFont(font11);
-	        para1.setIndentationLeft(100);
-	        para1.setIndentationRight(50);
-	        para1.add(firstpara);
-	        para1.add(Chunk.NEWLINE);
-	        para1.add(Chunk.NEWLINE);
-	        
-	        document.add(para1);
-	        
-	        Paragraph keyheader = new Paragraph();
-	        keyheader.setAlignment(Paragraph.ALIGN_LEFT);
-	        keyheader.setFont(font11);
-	        keyheader.setIndentationLeft(100);
-	        keyheader.setIndentationRight(50);
-	        keyheader.add("We have assessed your ability, qualitatively in term of the following <four> parameter \r\n" + 
-	        		"and accordingly assessed your overall indicator."); // put in dynamic data where required
-	        keyheader.add(Chunk.NEWLINE);
-	        keyheader.add(Chunk.NEWLINE);
-	        
-	        document.add(keyheader);
-	        
-	        PdfPTable detailsTable = new PdfPTable(2);
-	        detailsTable.setWidthPercentage(50);
-	        detailsTable.setWidths(new int[] {80,20});
-//	        detailsTable.setIndentationLeft(100);
-	        
-	        Color coloramber =new Color(255, 192, 0);
-	        
-	        for(ResultPdfResponse resp: result) {
-	        	PdfPCell cell = new PdfPCell(new Paragraph(resp.getCategoryName()));
-	        	PdfPCell color = new PdfPCell(new Paragraph(""));
-	        	detailsTable.addCell(cell);
+        String path = "C:\\Users\\Admin\\Desktop\\PdfFiles\\example"+new Date().getTime()+".pdf";
+      //Creating an image Data object
+       
+      //  String imFile = "C:\\Users\\Admin\\Desktop\\PdfFiles\\graone2.jpg";
+     //   String imageFooter = "C:\\Users\\Admin\\Desktop\\PdfFiles\\businesspartnerbb.png";
+        
+       // String imFile = "D:\\brainquiz-images\\graone2.jpg";
+        
+        String imFile =this.logoimageLocation + "/file/graone.jpg" ;
+        
+        String imageFooter = this.logoimageLocation + "/file/businesspartnerbb.png";
+        
+			/*
+			 * PdfWriter writer = new PdfWriter(path); // Creating a PdfDocument object
+			 * PdfDocument pdf = new PdfDocument(writer); pdfDoc = pdf; pdfDoc.addNewPage();
+			 * Document document = new Document(pdf);
+			 */
+        
+       // PdfDocument pdfDoc = new PdfDocument(new PdfWriter(path));
+        
+        PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outputStream));
+        
+        Document document = new Document(pdfDoc, PageSize.A4);
+        document.setMargins(36, 36, 120, 36);
+        PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);  
+        Table table = new Table(1).useAllAvailableWidth();
+
+        float[] columnWidths3 = {500};
+  		
+  		Table lastBorderLineTable = new Table(UnitValue.createPercentArray(columnWidths3)).useAllAvailableWidth();
+        
+  		table.addCell(new Cell().add(new Paragraph())
+        				.setBold()
+        				.setBorder(Border.NO_BORDER)
+        				.setBackgroundColor(new DeviceRgb(112,112,112)));
+  		
+        
+        Cell cell = new Cell().add(new Paragraph(footer))
+        		.setBorder(Border.NO_BORDER)
+        		.setFontSize(8)
+        		.setFont(font)
+        		.setTextAlignment(TextAlignment.JUSTIFIED);
+     //   cell.setBackgroundColor(ColorConstants.ORANGE);
+        table.addCell(cell);
+
+        Cell cellfooterImage = new Cell();
+        
+        ImageData data1 = ImageDataFactory.create(imageFooter);
+        
+        //Creating an image object
+        image = new Image(data1); 
+
+		cellfooterImage.setBorder(Border.NO_BORDER);
+		cellfooterImage.add(image);
+	
+		image.scaleAbsolute(400f, 50f);
+		image.setHorizontalAlignment(HorizontalAlignment.CENTER);
+	//	footerimageTable.addCell(cellfooterImage);
+	//	document.add(footerimageTable);
+        
+        
+       // cell = new Cell().add(new Paragraph(imageFooter));
+      //  cell.setBackgroundColor(ColorConstants.LIGHT_GRAY);
+        table.addCell(cellfooterImage);
+        pdfDoc.addEventHandler(PdfDocumentEvent.END_PAGE, new TableFooterEventHandler(table));
+        
+        //Table for image 
+     //   float col = 280f;
+        float[] columnWidths11 = {115,385};
+     
+        Table mainTable = new Table(UnitValue.createPercentArray(columnWidths11)).useAllAvailableWidth();
+        
+  /* ImageData data = ImageDataFactory.create(imFile);
+        Image image = new Image(data); 
+        image.scaleAbsolute(100f, 100f);
+        image.setBorder(Border.NO_BORDER);  
+        
+      mainTable.addCell((new Cell().add(image)))
+			.setBorder(Border.NO_BORDER);		*/
+
+
+     Cell cellImage = new Cell();
+    	cellImage.setTextAlignment(TextAlignment.CENTER);
+        ImageData data = ImageDataFactory.create(imFile);	
+        
+        //Creating an image object
+       Image image = new Image(data); 
+        
+        image.scaleAbsolute(100f, 100f);
+		image.setTextAlignment(TextAlignment.CENTER);
+		
+		cellImage.setBorder(Border.NO_BORDER);
+		cellImage.add(image);
+	
+		
+		mainTable.addCell(cellImage);  
+		
+		//mainTable.addCell(image);		
+		
+	/*mainTable.addCell(new Cell().add(new Paragraph())
+	        		.setBold()
+	        		.setBorder(Border.NO_BORDER));  */
+ 
+		mainTable.addCell(new Cell().add(new Paragraph("\n"+ testName ))
+    			.setBold()
+    			.setBorder(Border.NO_BORDER)
+    			.setFont(font)
+    			.setTextAlignment(TextAlignment.CENTER))
+				.setVerticalAlignment(VerticalAlignment.MIDDLE)
+				.setBackgroundColor(new DeviceRgb(112,112,112))
+				.setFontSize(24);
+		
+	/*	mainTable.addCell(new Cell().add(new Paragraph(testName))
+        		.setBold()
+        		.setBorder(Border.NO_BORDER));  */
+
+
+      //  mainTable .useAllAvailableWidth(); 
+        
+        //adding border line to document and image to document
+        document.add(mainTable ); 
+     
+        
+        float[] columnWidths = {115, 385};
+        Table nameTable = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
+        
+        nameTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER));
+        
+        // Cell for Paragraph
+     		Cell userCell = new Cell();
+     		userCell.setBold();
+     		userCell.setBorder(Border.NO_BORDER);
+     		
+     		Paragraph RegisterUserParagraph = new Paragraph(stuName).setFont(font);
+     					//RegisterUserParagraph.setBold();
+     					RegisterUserParagraph.setTextAlignment(TextAlignment.LEFT);
+     					RegisterUserParagraph.setFontSize(15);
+     				 
+     					userCell.add(RegisterUserParagraph);
+     					nameTable.addCell(userCell);
+     					document.add(nameTable);
+     					
+        Table dateTable = new Table(UnitValue.createPercentArray(9)).useAllAvailableWidth();
+        
+        dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER)
+                .setBackgroundColor(new DeviceRgb(112,112,112)));
+        
+        dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER));
+               	
+        dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER)
+        		.setBackgroundColor(new DeviceRgb(112,112,112)));
+        
+        dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER)
+        		.setBackgroundColor(new DeviceRgb(112,112,112)));
+        
+       dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER)
+        		.setBackgroundColor(new DeviceRgb(112,112,112)));
+        
+        dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER)
+        		.setBackgroundColor(new DeviceRgb(112,112,112)));
+        
+        dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER)
+        		.setBackgroundColor(new DeviceRgb(112,112,112)));
+        
+        dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER)
+        		.setBackgroundColor(new DeviceRgb(112,112,112)));
+        
+        dateTable.addCell(new Cell().add(new Paragraph())
+        		.setBold()
+        		.setBorder(Border.NO_BORDER)
+        		.setBackgroundColor(new DeviceRgb(112,112,112)));
+       
+        
+        //adding border line to document and image to document
+        document.add( dateTable );
+        
+        //create table for contact
+
+   //    float[] columnWidths = {115, 385};
+        
+        Table contactTable = new Table(UnitValue.createPercentArray(columnWidths));
+        
+        		contactTable.setFontSize(10);
+        		contactTable.setWidth(500);
+        		contactTable.setBorder(Border.NO_BORDER);
+        		
+           contactTable.addCell(new Cell().add(new Paragraph("Contact"))
+        		      .setFontSize(15)
+        		      .setFont(font)
+        		      .setTextAlignment(TextAlignment.LEFT)
+        		   
+        			  .setBorder(Border.NO_BORDER));
+           
+         //  System.out.println(stuName+"hello"+stuName);
+    
+        contactTable.addCell(new Cell().add(new Paragraph("Dear User "+stuName))
+  		      		.setFontSize(10)
+  		      		.setFont(font)
+  		      		.setBorder(Border.NO_BORDER)
+  		      		.setTextAlignment(TextAlignment.LEFT));
+       
+        //adding contactTable to document
+        document.add(contactTable);
+        
+       Table borderTable = new Table(UnitValue.createPercentArray(7)).useAllAvailableWidth();
+        
+        borderTable.addCell(new Cell().add(new Paragraph())
+        			.setBold()
+        			.setBorder(Border.NO_BORDER)
+        			.setBackgroundColor(new DeviceRgb(112,112,112)));
+        
+        borderTable.addCell(new Cell().add(new Paragraph())
+        			.setBold()
+        			.setBorder(Border.NO_BORDER));
+        
+        borderTable.addCell(new Cell().add(new Paragraph())
+    			.setBold()
+    			.setBorder(Border.NO_BORDER));
+        
+        borderTable.addCell(new Cell().add(new Paragraph())
+    			.setBold()
+    			.setBorder(Border.NO_BORDER));
+        
+        borderTable.addCell(new Cell().add(new Paragraph())
+    			.setBold()
+    			.setBorder(Border.NO_BORDER));
+        
+        borderTable.addCell(new Cell().add(new Paragraph())
+    			.setBold()
+    			.setBorder(Border.NO_BORDER));
+        
+        borderTable.addCell(new Cell().add(new Paragraph())
+    			.setBold()
+    			.setBorder(Border.NO_BORDER));
+        
+        document.add( borderTable );
+        
+        float[] columnWidth = {110, 390};
+        Table graoneTable = new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
+        
+        		graoneTable.addCell(new Cell().add(new Paragraph("info@graone.co.in"))
+        					.setFontSize(11)
+        					.setFont(font)
+        					.setTextAlignment(TextAlignment.LEFT)
+        					.setBorder(Border.NO_BORDER));
+        		
+        		graoneTable.addCell(new Cell().add(new Paragraph(firstpara1))
+      		      		.setFontSize(10)
+      		      		.setFont(font)
+      		      		.setBorder(Border.NO_BORDER)
+      		      		.setTextAlignment(TextAlignment.LEFT));
+        		
+        		graoneTable.addCell(new Cell().add(new Paragraph())
+        				.setBold()
+        				.setBorder(Border.NO_BORDER));
+        		
+        		graoneTable.addCell(new Cell().add(new Paragraph("Assessment ID: "  +stuName +" being assessed for "+ testCode +" on "+ subDate))
+      		      		.setFontSize(10)
+      		      		.setFont(font)
+      		      		.setBorder(Border.NO_BORDER)
+      		      		.setTextAlignment(TextAlignment.LEFT));
+        		document.add(graoneTable);
+        		
+        		//added new paragraph
+                document.add(new Paragraph());
+                
+        Table mainInfoTable = new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();	
+        
+        		mainInfoTable.addCell(new Cell().add(new Paragraph())
+            				.setBold()
+            				.setBorder(Border.NO_BORDER));
+        					
+        		mainInfoTable.addCell(new Cell().add(new Paragraph(firstpara))
+      		      			.setFontSize(10)
+      		      			.setFont(font)
+      		      			.setBorder(Border.NO_BORDER)
+      		      			.setTextAlignment(TextAlignment.LEFT));
+        		
+        		document.add(mainInfoTable);
+        		
+        		 
+        		 Table info2Table = new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
+        		 
+        		 info2Table.addCell(new Cell().add(new Paragraph())
+         					.setBold()
+         					.setBorder(Border.NO_BORDER));
+        		 
+        		 info2Table.addCell(new Cell().add(new Paragraph(secondpara + result.size()+" " + secondpara1))
+       		      			.setFontSize(10)
+       		      			.setFont(font)
+       		      			.setBorder(Border.NO_BORDER)
+       		      			.setTextAlignment(TextAlignment.LEFT));
+        		 
+        		 document.add(info2Table);
+        		 
+        		 document.add(new Paragraph());
+        		 
+        		 
+
+        		 
+        		 float[] columnWidths1 = {110, 30, 200,20,20,20,20,20,20,20,20};
+        		 
+         Table tab1Table = new Table(UnitValue.createPercentArray(columnWidths1)).useAllAvailableWidth();
+         
+         ArrayList<String> value2 = new ArrayList<String>();
+         
+      //   String count ="1";
+         
+        int count=1;
+         
+        // int i = Integer.parseInt(count); 
+         
+         for(ResultPdfResponse resp: result) {
+	        //	PdfNull cell = new PdfPCell(new Paragraph(resp.getCategoryName()));
+	        //	PdfNull color = new PdfPCell(new Paragraph(""));
+	        //	detailsTable.addCell(cell);
+        	 
+        	 
+        	 System.out.println("color"+resp.getColors());
+
+        	 value2.add(resp.getColors());
+
 	        	
-	        	if(resp.getColors().equals("red"))
-	        		 color.setBackgroundColor(Color.RED);
-				  else if(resp.getColors().equals("green"))
-				  color.setBackgroundColor(Color.GREEN);
-				  else
-				 color.setBackgroundColor(coloramber);
-				//  color.setBackgroundColor(Color.YELLOW);
-				 
-	        	
-	        	
-	        	detailsTable.addCell(color);
+				/*
+				 * Cell color; 
+				 * if(resp.getColors().equals("red")) color.setBackgroundColor(new
+				 * DeviceRgb(255, 0, 0)); else if(resp.getColors().equals("green"))
+				 * color.setBackgroundColor(new DeviceRgb(60, 179, 113)); else
+				 * color.setBackgroundColor(new DeviceRgb(255, 204, 0));
+				 * 
+				 * tab1Table.addCell(color);
+				 */
+        	 
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+  					.setBold()
+  					.setBorder(Border.NO_BORDER));
+    		 
+    		 tab1Table.addCell(new Cell().add(new Paragraph( Integer. toString(count)))
+   		      			.setFontSize(10)
+   		      			.setFont(font)
+   		      			.setBorder(Border.NO_BORDER)
+   		      			.setTextAlignment(TextAlignment.LEFT));
+    		 
+    		
+			tab1Table.addCell(new Cell().add(new Paragraph(resp.getCategoryName()))
+     		      	.setFontSize(10)
+     		      	.setFont(font)
+    		      	.setBorder(Border.NO_BORDER)
+    		      	.setTextAlignment(TextAlignment.LEFT));
+    		 
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+   					.setBold()
+   					.setBorder(Border.NO_BORDER));
+    		 
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+   					.setBold()
+   					.setBorder(Border.NO_BORDER));
+    		 
+    		 
+    		
+    		 if(resp.getColors().equals("red"))
+    		 {
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+  		      		.setFontSize(10)
+  		      		.setFont(font)
+  		      		.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+ 		      		.setBackgroundColor(new DeviceRgb(255, 0, 0))
+ 		      		.setTextAlignment(TextAlignment.CENTER));
+    		 }else if(resp.getColors().equals("green"))
+    		 {
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+  		      		.setFontSize(10)
+  		      		.setFont(font)
+  		      		.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+ 		      		.setBackgroundColor(new DeviceRgb(60, 179, 113))
+ 		      		.setTextAlignment(TextAlignment.CENTER));
+    		 }
+    		 else if(resp.getColors().equals("amber"))
+    		 {
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+  		      		.setFontSize(10)
+  		      		.setFont(font)
+  		      		.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+ 		      		.setBackgroundColor(new DeviceRgb(255, 204, 0))
+ 		      		.setTextAlignment(TextAlignment.CENTER));
+    		 }
+    		 
+    		 	
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+   						.setBold()
+   						.setBorder(Border.NO_BORDER));
+    		 
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+    					.setBold()
+    					.setBorder(Border.NO_BORDER));
+    		 
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+    					.setBold()
+    					.setBorder(Border.NO_BORDER));
+    		 
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+    					.setBold()
+    					.setBorder(Border.NO_BORDER));
+    		 
+    		 tab1Table.addCell(new Cell().add(new Paragraph())
+ 					.setBold()
+ 					.setBorder(Border.NO_BORDER));
+    		 
+    		 count++;
+	        
 	        }
-	        
-	        document.add(detailsTable);
-	        
-	        Paragraph interp = new Paragraph();
-	        interp.setFont(font11);
-	        interp.setAlignment(Paragraph.ALIGN_LEFT);
-	        interp.setIndentationLeft(100);
-	        interp.setIndentationRight(50);
-	        interp.add("Interpretation: "+interpretation);
-	        interp.add(Chunk.NEWLINE);
-	        interp.add(Chunk.NEWLINE);
-	        
-	        document.add(interp);
-	        
-	        PdfPTable scoreKey = new PdfPTable(3);
-	        scoreKey.setWidthPercentage(60);
-	        scoreKey.setWidths(new int[] {10,20,30});
-	        
-//	        Found index of seperator
-	        int index1 = keycolor1.indexOf('-');
-	        int index2 = keycolor2.indexOf('-');
-	        int index3 = keycolor3.indexOf('-');
-	        
-//	        Found color name below
-	        String color1 = keycolor1.substring(0,index1);
-	        String color2 = keycolor2.substring(0,index2);
-	        String color3 = keycolor3.substring(0,index3);
-	        
-//	        Found explanation of color below
-	        String exp1 = keycolor1.substring(index1+1, keycolor1.length());
-	        String exp2 = keycolor2.substring(index2+1, keycolor2.length());
-	        String exp3 = keycolor3.substring(index3+1, keycolor3.length());
-	        
-	        PdfPCell cell1 = new PdfPCell(new Paragraph(""));
-	        if(color1.equalsIgnoreCase("Red")) {
-	        	cell1.setBackgroundColor(Color.RED);
-	        }else if(color1.equalsIgnoreCase("Amber")) {
-	        	cell1.setBackgroundColor(Color.YELLOW);
-	        }else if(color1.equalsIgnoreCase("Green")) {
-	        	cell1.setBackgroundColor(Color.GREEN);
-	        }
-	        PdfPCell col1 = new PdfPCell(new Paragraph(color1));
-	        col1.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        PdfPCell expl1 = new PdfPCell(new Paragraph(exp1));
-	        expl1.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        PdfPCell cell2 = new PdfPCell(new Paragraph(""));
-	        if(color2.equalsIgnoreCase("Red")) {
-	        	cell2.setBackgroundColor(Color.RED);
-	        }else if(color2.equalsIgnoreCase("Amber")) {
-	        	cell2.setBackgroundColor(Color.YELLOW);
-	        }else if(color2.equalsIgnoreCase("Green")) {
-	        	cell2.setBackgroundColor(Color.GREEN);
-	        }
-	        PdfPCell col2 = new PdfPCell(new Paragraph(color2));
-	        col2.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        PdfPCell expl2 = new PdfPCell(new Paragraph(exp2));
-	        expl2.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        PdfPCell cell3 = new PdfPCell(new Paragraph(""));
-	        if(color3.equalsIgnoreCase("Red")) {
-	        	cell3.setBackgroundColor(Color.RED);
-	        }else if(color3.equalsIgnoreCase("Amber")) {
-	        	cell3.setBackgroundColor(Color.YELLOW);
-	        }else if(color3.equalsIgnoreCase("Green")) {
-	        	cell3.setBackgroundColor(Color.GREEN);
-	        }
-	        PdfPCell col3 = new PdfPCell(new Paragraph(color3));
-	        col3.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        PdfPCell expl3 = new PdfPCell(new Paragraph(exp3));
-	        expl3.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        
-	        scoreKey.addCell(cell1);
-	        scoreKey.addCell(col1);
-	        scoreKey.addCell(expl1);
-	        scoreKey.addCell(cell2);
-	        scoreKey.addCell(col2);
-	        scoreKey.addCell(expl2);
-	        scoreKey.addCell(cell3);
-	        scoreKey.addCell(col3);
-	        scoreKey.addCell(expl3);
-	        
-	        document.add(scoreKey);
-	        
-	        
-//	        PdfPCell cell1 = new PdfPCell(new Paragraph(""));
-//	        cell1.setBackgroundColor(Color.GREEN);
-//	        PdfPCell cell2 = new PdfPCell(new Paragraph("Green"));
-//	        cell2.setHorizontalAlignment(Element.ALIGN_CENTER);
-//	        PdfPCell cell3 = new PdfPCell(new Paragraph("Normal Ability"));
-//	        cell3.setHorizontalAlignment(Element.ALIGN_CENTER);
-//	        PdfPCell cell4 = new PdfPCell(new Paragraph(""));
-//	        cell4.setBackgroundColor(Color.YELLOW);
-//	        PdfPCell cell5 = new PdfPCell(new Paragraph("Amber"));
-//	        cell5.setHorizontalAlignment(Element.ALIGN_CENTER);
-//	        PdfPCell cell6 = new PdfPCell(new Paragraph("Moderately Impacted Ability"));
-//	        cell6.setHorizontalAlignment(Element.ALIGN_CENTER);
-//	        PdfPCell cell7 = new PdfPCell(new Paragraph(""));
-//	        cell7.setBackgroundColor(Color.RED);
-//	        PdfPCell cell8 = new PdfPCell(new Paragraph("Red"));
-//	        cell8.setHorizontalAlignment(Element.ALIGN_CENTER);
-//	        PdfPCell cell9 = new PdfPCell(new Paragraph("Severely Impacted Ability"));
-//	        cell9.setHorizontalAlignment(Element.ALIGN_CENTER);
-//	        
-//	        scoreKey.addCell(cell1);
-//	        scoreKey.addCell(cell2);
-//	        scoreKey.addCell(cell3);
-//	        scoreKey.addCell(cell4);
-//	        scoreKey.addCell(cell5);
-//	        scoreKey.addCell(cell6);
-//	        scoreKey.addCell(cell7);
-//	        scoreKey.addCell(cell8);
-//	        scoreKey.addCell(cell9);
-//	        
-//	        document.add(scoreKey);
-	        
-//	        PdfContentByte canvas = writer.getDirectContent();
-//	        canvas.saveState();
-//	        canvas.setColorStroke(Color.black);
-//	        canvas.rectangle(10,10,10,10);
-//	        canvas.stroke();
-//	        canvas.restoreState();
-	        
-	        Paragraph para2 = new Paragraph();
-	        para2.setFont(font11);
-	        para2.setAlignment(Paragraph.ALIGN_LEFT);
-	        para2.setIndentationLeft(100);
-	        para2.setIndentationRight(50);
-	        para2.add(secondpara);
-	        para2.add(Chunk.NEWLINE);
-	        para2.add(Chunk.NEWLINE);
-	        
-	        document.add(para2);
-	        
-	        Paragraph disclaim = new Paragraph();
-	        disclaim.setFont(font11);
-	        disclaim.setAlignment(Paragraph.ALIGN_LEFT);
-	        disclaim.setIndentationLeft(100);
-	        disclaim.setIndentationRight(50);
-	        disclaim.add("Disclaimer: "+disclaimer);
-	        disclaim.add(Chunk.NEWLINE);
-	        disclaim.add(Chunk.NEWLINE);
-	        
-	        document.add(disclaim);
-	        
-//	        HeaderFooter footerr = new HeaderFooter( new Phrase(footer, footerFont9),false); 
-//	        footerr.setAlignment(Element.ALIGN_CENTER); 
-//	   		footerr.setBorder(Rectangle.NO_BORDER); 
-//	   		document.setFooter(footerr);
-	   		
-	   		HeaderFooter foo =    new HeaderFooter( new Phrase(footer, font9), false);
-            foo.setAlignment(Element.ALIGN_CENTER);
-            foo.setBorder(Rectangle.NO_BORDER);
-            document.setFooter(foo);
-	        
-	        Paragraph keyinfoo = new Paragraph();
-	        keyinfoo.setFont(font11);
-	        keyinfoo.setAlignment(Paragraph.ALIGN_LEFT);
-	        keyinfoo.setIndentationLeft(100);
-	        keyinfoo.setIndentationRight(50);
-	        keyinfoo.add("Legend: \r\n"+keyinfo1+"\r\n"+keyinfo2+"\r\n"+keyinfo3);
-	        
-	        document.add(keyinfoo);
-	        
-			document.close();
-			
+        		 
+          document.add(tab1Table);
+        		 
+        		
+        /*	Table tab2Table = new Table(UnitValue.createPercentArray(columnWidths1)).useAllAvailableWidth();
+        		 
+        		 tab2Table.addCell(new Cell().add(new Paragraph())
+       					.setBold()
+       					.setBorder(Border.NO_BORDER));
+        		 
+        		 tab2Table.addCell(new Cell().add(new Paragraph("2"))
+        		      	.setFontSize(10)
+       		      		.setBorder(Border.NO_BORDER)
+       		      		.setTextAlignment(TextAlignment.LEFT));
+         		 
+         		 tab2Table.addCell(new Cell().add(new Paragraph("param 2"))
+         		      		.setFontSize(10)
+        		      		.setBorder(Border.NO_BORDER)
+        		      		.setTextAlignment(TextAlignment.LEFT));
+         		 
+         		 tab2Table.addCell(new Cell().add(new Paragraph())
+      		      		.setFontSize(10)
+     		      		.setBorder(Border.NO_BORDER));
+     		      		
+         		tab2Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		
+         		tab2Table.addCell(new Cell().add(new Paragraph())
+      		      		.setFontSize(10)
+      		      		.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+     		      		.setBackgroundColor(new DeviceRgb(60, 179, 113)));
+         		
+         		tab2Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		tab2Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		tab2Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		tab2Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		tab2Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         	
+         		 document.add(tab2Table);
+         		 
+         	Table tab3Table = new Table(UnitValue.createPercentArray(columnWidths1)).useAllAvailableWidth();
+         	 	
+         	 	tab3Table.addCell(new Cell().add(new Paragraph())
+         	 			.setBold()
+         	 			.setBorder(Border.NO_BORDER));
+        		 
+        		 tab3Table.addCell(new Cell().add(new Paragraph("3"))
+        		      		.setFontSize(10)
+        		      		.setBorder(Border.NO_BORDER)
+        		      		.setTextAlignment(TextAlignment.LEFT));
+         		 
+         		 tab3Table.addCell(new Cell().add(new Paragraph("Param 3"))
+         		      		.setFontSize(10)
+        		      		.setBorder(Border.NO_BORDER)
+        		      		.setTextAlignment(TextAlignment.LEFT));
+         		 
+         		 tab3Table.addCell(new Cell().add(new Paragraph(""))
+     		      		.setBorder(Border.NO_BORDER)
+     		      		.setTextAlignment(TextAlignment.CENTER));
+         		 
+         		 tab3Table.addCell(new Cell().add(new Paragraph(""))
+      		      		.setBorder(Border.NO_BORDER)
+      		      		.setTextAlignment(TextAlignment.CENTER));
+         		 
+         		tab3Table.addCell(new Cell().add(new Paragraph())
+         					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+         					.setBackgroundColor(new DeviceRgb(60, 179, 113))
+         					.setTextAlignment(TextAlignment.CENTER));
+         		
+         		tab3Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		
+         		tab3Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		
+         		tab3Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		
+         		tab3Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		
+         		tab3Table.addCell(new Cell().add(new Paragraph())
+     					.setBold()
+     					.setBorder(Border.NO_BORDER));
+         		
+         		 document.add(tab3Table);
+         		 
+         		Table tab4Table = new Table(UnitValue.createPercentArray(columnWidths1)).useAllAvailableWidth();
+         			
+         			tab4Table.addCell(new Cell().add(new Paragraph())
+         	 			.setBold()
+         	 			.setBorder(Border.NO_BORDER));
+       		 
+         			tab4Table.addCell(new Cell().add(new Paragraph("4"))
+       		      		.setFontSize(10)
+      		      		.setBorder(Border.NO_BORDER)
+      		      		.setTextAlignment(TextAlignment.LEFT));
+        		 
+         			tab4Table.addCell(new Cell().add(new Paragraph("Param 4"))
+        		      		.setFontSize(10)
+        		      		.setBorder(Border.NO_BORDER)
+        		      		.setTextAlignment(TextAlignment.LEFT));
+         			
+         			tab4Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+        		 
+         			tab4Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab4Table.addCell(new Cell().add(new Paragraph())
+         					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+         					.setBackgroundColor(new DeviceRgb(60, 179, 113))
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab4Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab4Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab4Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab4Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab4Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         	
+         			document.add(tab4Table);  */
+         		 
+         			
+         			Table tab5Table = new Table(UnitValue.createPercentArray(columnWidths1)).useAllAvailableWidth();
+         			
+         			
+         			tab5Table.addCell(new Cell().add(new Paragraph())
+             	 			.setBold()
+             	 			.setBorder(Border.NO_BORDER));
+              		 
+         			tab5Table.addCell(new Cell().add(new Paragraph( Integer. toString(count)))
+       		      		.setFontSize(10)
+       		      		.setFont(font)
+      		      		.setBorder(Border.NO_BORDER)
+      		      		.setTextAlignment(TextAlignment.LEFT));
+        		 
+         			tab5Table.addCell(new Cell().add(new Paragraph("Overall assessment score / indicator"))
+        		      	.setFontSize(10)
+        		      	.setFont(font)
+       		      		.setBorder(Border.NO_BORDER)
+       		      		.setTextAlignment(TextAlignment.LEFT));
+         			
+         			tab5Table.addCell(new Cell().add(new Paragraph(""))
+    		      		.setBorder(Border.NO_BORDER)
+    		      		.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab5Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			
+         			if(value2.contains("red")) {
+         				
+         				tab5Table.addCell(new Cell().add(new Paragraph())
+             					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+             					.setBackgroundColor(new DeviceRgb(255, 0, 0))
+             					.setTextAlignment(TextAlignment.CENTER));
+         			}
+         			else if(value2.contains("Amber")) {
+         	  	        	tab5Table.addCell(new Cell().add(new Paragraph())
+                 					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+                 					.setBackgroundColor(new DeviceRgb(60, 179, 113))
+                 					.setTextAlignment(TextAlignment.CENTER));
+         	  	        }       	  	         	
+         	  	        else {
+         	  	        	tab5Table.addCell(new Cell().add(new Paragraph())
+                 					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+                 					.setBackgroundColor(new DeviceRgb(255, 204, 0))
+                 					.setTextAlignment(TextAlignment.CENTER));
+         	  	        }
+         		/*	tab5Table.addCell(new Cell().add(new Paragraph())
+         					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+         					.setBackgroundColor(new DeviceRgb(255, 0, 0))
+         					.setTextAlignment(TextAlignment.CENTER)); */
+         			
+         			tab5Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab5Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab5Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab5Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+         			
+         			tab5Table.addCell(new Cell().add(new Paragraph(" "))
+         					.setBorder(Border.NO_BORDER)
+         					.setTextAlignment(TextAlignment.CENTER));
+       
+         			document.add(tab5Table); 
+         			
+         			document.add(new Paragraph());
+         			
+         			
+           		 Table info3Table = new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
+           		 					
+           		info3Table.addCell(new Cell().add(new Paragraph())
+           				.setBold()
+           				.setBorder(Border.NO_BORDER));
+           		 
+           		info3Table.addCell(new Cell().add(new Paragraph(interpretation))
+       		      		.setFontSize(10)
+       		      		.setFont(font)
+       		      		.setBorder(Border.NO_BORDER)
+       		      		.setTextAlignment(TextAlignment.LEFT));
+         			
+         		document.add(info3Table);
+         		
+         		document.add(new Paragraph());
+         		
+         		 float[] columnWidths2 = {110, 20, 45, 325};
+         		 
+         		Table tab6Table = new Table(UnitValue.createPercentArray(columnWidths2)).useAllAvailableWidth();
+         		
+         		tab6Table.addCell(new Cell().add(new Paragraph())
+         	 			.setBold()
+         	 			.setBorder(Border.NO_BORDER));
+          		 
+     			tab6Table.addCell(new Cell().add(new Paragraph(""))
+     					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+     		      		.setBackgroundColor(new DeviceRgb(60, 179, 113))
+     		      		.setFont(font)
+  		      			.setTextAlignment(TextAlignment.LEFT));
+    		 
+     			tab6Table.addCell(new Cell().add(new Paragraph(keycolor1))
+    		      	.setFontSize(9)
+    		      	.setFont(font)
+   		      		.setBorder(Border.NO_BORDER)
+   		      		.setTextAlignment(TextAlignment.LEFT));
+     			
+     			tab6Table.addCell(new Cell().add(new Paragraph(keycolor11))
+ 		      		.setFontSize(9)
+ 		      		.setFont(font)
+		      		.setBorder(Border.NO_BORDER)
+		      		.setBold()
+		      		.setTextAlignment(TextAlignment.LEFT));
+     			
+     			document.add(tab6Table);
+     			
+     			Table tab7Table = new Table(UnitValue.createPercentArray(columnWidths2)).useAllAvailableWidth();
+         			
+     			tab7Table.addCell(new Cell().add(new Paragraph())
+         	 			.setBold()
+         	 			.setBorder(Border.NO_BORDER));
+          		 
+     			tab7Table.addCell(new Cell().add(new Paragraph(""))
+     					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+     		      		.setBackgroundColor(new DeviceRgb(255, 204, 0))
+     		      		.setTextAlignment(TextAlignment.LEFT));
+    		 
+     			tab7Table.addCell(new Cell().add(new Paragraph(keycolor2))
+    		      	.setFontSize(9)
+    		      	.setFont(font)
+   		      		.setBorder(Border.NO_BORDER)
+   		      		.setTextAlignment(TextAlignment.LEFT));
+     			
+     			tab7Table.addCell(new Cell().add(new Paragraph(keycolor22))
+ 		      		.setFontSize(9)
+ 		      		.setFont(font)
+		      		.setBorder(Border.NO_BORDER)
+		      		.setBold()
+		      		.setTextAlignment(TextAlignment.LEFT));
+     			
+     			document.add(tab7Table);
+     			
+     			Table tab8Table = new Table(UnitValue.createPercentArray(columnWidths2)).useAllAvailableWidth();
+         			
+     			tab8Table.addCell(new Cell().add(new Paragraph())
+         	 			.setBold()
+         	 			.setBorder(Border.NO_BORDER));
+          		 
+     			tab8Table.addCell(new Cell().add(new Paragraph(""))
+     					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
+     		      		.setBackgroundColor(new DeviceRgb(255, 0, 0))
+     		      		.setTextAlignment(TextAlignment.LEFT));
+    		 
+     			tab8Table.addCell(new Cell().add(new Paragraph(keycolor3))
+    		      	.setFontSize(9)
+    		      	.setFont(font)
+   		      		.setBorder(Border.NO_BORDER)
+   		      		.setTextAlignment(TextAlignment.LEFT));
+     			
+     			tab8Table.addCell(new Cell().add(new Paragraph(keycolor33))
+ 		      		.setFontSize(9)
+ 		      		.setFont(font)
+		      		.setBorder(Border.NO_BORDER)
+		      		.setBold()
+		      		.setTextAlignment(TextAlignment.LEFT));
+     			
+     			document.add(tab8Table);
+         		
+     			document.add(new Paragraph());
+     			 
+     			 
+       		 Table info4Table = new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
+       		 
+       		 info4Table.addCell(new Cell().add(new Paragraph())
+        					.setBold()
+        					.setBorder(Border.NO_BORDER));
+       		 
+       		 info4Table.addCell(new Cell().add(new Paragraph(thirdpara +result.size()+ " " + thirdpara1))
+      		      			.setFontSize(10)
+      		      			.setFont(font)
+      		      			.setBorder(Border.NO_BORDER)
+      		      			.setTextAlignment(TextAlignment.LEFT));
+       		 
+       		 document.add(info4Table);
+         		
+       		 
+       		document.add(new Paragraph());
+			 
+			 
+      		 Table info5Table = new Table(UnitValue.createPercentArray(columnWidth)).useAllAvailableWidth();
+      		 
+      		 info5Table.addCell(new Cell().add(new Paragraph())
+       					.setBold()
+       					.setBorder(Border.NO_BORDER));
+      		 
+      		 info5Table.addCell(new Cell().add(new Paragraph(disclaimer))
+     		      			.setFontSize(10)
+     		      			.setFont(font)
+     		      			.setBorder(Border.NO_BORDER)
+     		      			.setTextAlignment(TextAlignment.LEFT));
+      		 
+      		
+         	
+      		//document.add(new Paragraph());
+      		
+			/*
+			 * float[] columnWidths3 = {500};
+			 * 
+			 * Table lastBorderLineTable = new
+			 * Table(UnitValue.createPercentArray(columnWidths3)).useAllAvailableWidth();
+			 * 
+			 * lastBorderLineTable.addCell(new Cell().add(new Paragraph()) .setBold()
+			 * .setBorder(Border.NO_BORDER) .setBackgroundColor(new
+			 * DeviceRgb(112,112,112)));
+			 * 
+			 * document.add(lastBorderLineTable);
+			 */
+			/*
+			 * Table lastTextTable = new
+			 * Table(UnitValue.createPercentArray(columnWidths3)).useAllAvailableWidth();
+			 * 
+			 * lastTextTable.addCell(new Cell().add(new Paragraph(footer))
+			 * .setBorder(Border.NO_BORDER) .setFontSize(10)
+			 * .setTextAlignment(TextAlignment.JUSTIFIED));
+			 * 
+			 * document.add(lastTextTable);
+			 */
+      		//Adding footer image
+         
+     //     Table footerimageTable = new Table(UnitValue.createPercentArray(1)).useAllAvailableWidth();
+          
+			/*
+			 * Cell cellfooterImage = new Cell();
+			 * 
+			 * ImageData data1 = ImageDataFactory.create(imageFooter);
+			 * 
+			 * //Creating an image object image = new Image(data1);
+			 * 
+			 * cellfooterImage.setBorder(Border.NO_BORDER); cellfooterImage.add(image);
+			 * image.scaleAbsolute(550f, 75f); footerimageTable.addCell(cellfooterImage);
+			 * document.add(footerimageTable);
+			 */
+      		// Adding new page
+      		// pdfDoc.addNewPage();
+      		info5Table.addCell(new Cell().add(new Paragraph())
+   					.setBold()
+   					.setBorder(Border.NO_BORDER));
+      		 info5Table.addCell(new Cell().add(new Paragraph(fourthpara))
+		      			.setFontSize(10)
+		      			.setFont(font)
+		      			.setBorder(Border.NO_BORDER)
+		      			.setTextAlignment(TextAlignment.LEFT));
+      		 
+      		info5Table.addCell(new Cell().add(new Paragraph())
+   					.setBold()
+   					.setBorder(Border.NO_BORDER));
+      		 info5Table.addCell(new Cell().add(new Paragraph(fourthpara1))
+		      			.setFontSize(10)
+		      			.setFont(font)
+		      			.setBorder(Border.NO_BORDER)
+		      			.setTextAlignment(TextAlignment.LEFT));
+      		 
+      		info5Table.addCell(new Cell().add(new Paragraph())
+   					.setBold()
+   					.setBorder(Border.NO_BORDER));
+      		 info5Table.addCell(new Cell().add(new Paragraph(fourthpara2))
+		      			.setFontSize(10)
+		      			.setFont(font)
+		      			.setBorder(Border.NO_BORDER)
+		      			.setTextAlignment(TextAlignment.LEFT));
+      		 
+      		info5Table.addCell(new Cell().add(new Paragraph())
+   					.setBold()
+   					.setBorder(Border.NO_BORDER));
+      		 info5Table.addCell(new Cell().add(new Paragraph(fourthpara3))
+		      			.setFontSize(10)
+		      			.setFont(font)
+		      			.setBorder(Border.NO_BORDER)
+		      			.setTextAlignment(TextAlignment.LEFT));
+      		 
+      		info5Table.addCell(new Cell().add(new Paragraph())
+   					.setBold()
+   					.setBorder(Border.NO_BORDER));
+      		 info5Table.addCell(new Cell().add(new Paragraph(fourthpara4))
+		      			.setFontSize(10)
+		      			.setFont(font)
+		      			.setBorder(Border.NO_BORDER)
+		      			.setTextAlignment(TextAlignment.LEFT));
+      		 
+      		info5Table.addCell(new Cell().add(new Paragraph())
+   					.setBold()
+   					.setBorder(Border.NO_BORDER));
+      		 info5Table.addCell(new Cell().add(new Paragraph(fourthpara5))
+		      			.setFontSize(10)
+		      			.setFont(font)
+		      			.setBorder(Border.NO_BORDER)
+		      			.setTextAlignment(TextAlignment.LEFT));
+      		
+      		 document.add(info5Table);
+      		
+      		document.add(new Paragraph());
+      		document.add(new Paragraph());
+      		
+      	/*	float[] columnWidths4 = {55, 445};
+      		 
+      		Table firstTable = new Table(UnitValue.createPercentArray(columnWidths4)).useAllAvailableWidth();
+      		
+      				firstTable.addCell(new Cell().add(new Paragraph())
+      						.setBorder(Border.NO_BORDER));
+      		
+      				firstTable.addCell(new Cell().add(new Paragraph("Legend :"))
+      						.setFontSize(11)
+      						.setTextAlignment(TextAlignment.LEFT)
+      						.setBorder(Border.NO_BORDER));
+      				
+      				firstTable.addCell(new Cell().add(new Paragraph())
+      						.setBorder(Border.NO_BORDER));
+      				
+      				firstTable.addCell(new Cell().add(new Paragraph("1."))
+          					.setFontSize(11)
+          					.setTextAlignment(TextAlignment.LEFT)
+             		      	.setBorder(Border.NO_BORDER));
+      				
+      				document.add(firstTable);
+      				
+      			
+      				float[] columnWidths5 = {55,230,20,195};
+      				
+      				Table secondTable = new Table(UnitValue.createPercentArray(columnWidths5)).useAllAvailableWidth();
+      				
+      						secondTable.addCell(new Cell().add(new Paragraph())
+      									.setBorder(Border.NO_BORDER));
+      						
+      						secondTable.addCell(new Cell().add(new Paragraph("Purple rectanle border with light purple highlight"))
+      	          						.setFontSize(11)
+      	          						.setTextAlignment(TextAlignment.LEFT)
+      	          						.setBorder(Border.NO_BORDER));	
+      						
+      					secondTable.addCell(new Cell().add(new Paragraph(""))
+      		     					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(115, 0, 153)), 3))
+      		     		      		.setBackgroundColor(new DeviceRgb(242, 204, 255))
+      		     		      		.setTextAlignment(TextAlignment.LEFT));
+      				
+      					secondTable.addCell(new Cell().add(new Paragraph())
+									.setBorder(Border.NO_BORDER));
+      				document.add(secondTable);
+      				
+      				Table thirdTable = new Table(UnitValue.createPercentArray(columnWidths4)).useAllAvailableWidth();
+      				
+      						thirdTable.addCell(new Cell().add(new Paragraph())
+          							.setBorder(Border.NO_BORDER));
+      						
+      						thirdTable.addCell(new Cell().add(new Paragraph(keyinfo1))
+      	      						.setFontSize(11)
+      	      						.setTextAlignment(TextAlignment.LEFT)
+      	      						.setBorder(Border.NO_BORDER));
+      						
+      						document.add(thirdTable);
+      						
+      				Table fourthTable = new Table(UnitValue.createPercentArray(columnWidths4)).useAllAvailableWidth();
+      						
+      				fourthTable.addCell(new Cell().add(new Paragraph())
+      							.setBorder(Border.NO_BORDER));
+      				
+      				fourthTable.addCell(new Cell().add(new Paragraph("2."))
+      						.setFontSize(11)
+          					.setTextAlignment(TextAlignment.LEFT)
+             		      	.setBorder(Border.NO_BORDER));
+      				
+      						document.add(fourthTable);
+      						
+      				float[] columnWidths6 = {55,20,40,385};
+      				
+      				Table fourth1Table = new Table(UnitValue.createPercentArray(columnWidths6)).useAllAvailableWidth();
+      				
+      				fourth1Table.addCell(new Cell().add(new Paragraph())
+  								.setBorder(Border.NO_BORDER));
+      				
+      				fourth1Table.addCell(new Cell().add(new Paragraph("Blue"))
+          					.setFontSize(11)
+          					.setTextAlignment(TextAlignment.LEFT)
+             		      	.setBorder(Border.NO_BORDER));
+      				
+      				
+      				fourth1Table.addCell(new Cell().add(new Paragraph("highlight"))
+      							.setBorder(Border.NO_BORDER)
+		     		      		.setBackgroundColor(new DeviceRgb(77, 255, 255))
+		     		      		.setTextAlignment(TextAlignment.LEFT));
+      				
+      				fourth1Table.addCell(new Cell().add(new Paragraph())
+								.setBorder(Border.NO_BORDER));
+      				
+      				document.add(fourth1Table);
+      				
+      				Table fifthTable = new Table(UnitValue.createPercentArray(columnWidths4)).useAllAvailableWidth();
+      				
+      				fifthTable.addCell(new Cell().add(new Paragraph())
+  							.setBorder(Border.NO_BORDER));
+      				
+      				fifthTable.addCell(new Cell().add(new Paragraph(keyinfo2))
+	      						.setFontSize(11)
+	      						.setTextAlignment(TextAlignment.LEFT)
+	      						.setBorder(Border.NO_BORDER));
+      				
+      				document.add(fifthTable);
+      				
+      				Table sixthTable = new Table(UnitValue.createPercentArray(columnWidths4)).useAllAvailableWidth();
+      							
+      						sixthTable.addCell(new Cell().add(new Paragraph())
+      	      						.setBorder(Border.NO_BORDER));
+      						
+      						sixthTable.addCell(new Cell().add(new Paragraph("3."))
+      	      						.setFontSize(11)
+      	      						.setTextAlignment(TextAlignment.LEFT)
+      	      						.setBorder(Border.NO_BORDER));
+      						
+      				document.add(sixthTable);
+      				
+      				float[] columnWidths7 = {55,25,40,10,20,350};
+      				
+      				Table sixth1Table = new Table(UnitValue.createPercentArray(columnWidths7)).useAllAvailableWidth();
+      				
+      					sixth1Table.addCell(new Cell().add(new Paragraph())
+	      							.setBorder(Border.NO_BORDER));
+      					
+      					sixth1Table.addCell(new Cell().add(new Paragraph("Yellow"))
+  	      						.setFontSize(11)
+  	      						.setTextAlignment(TextAlignment.LEFT)
+  	      						.setBorder(Border.NO_BORDER));
+      					
+      					sixth1Table.addCell(new Cell().add(new Paragraph("highlight"))
+      							.setBorder(Border.NO_BORDER)
+		     		      		.setBackgroundColor(new DeviceRgb(255, 255, 26))
+		     		      		.setTextAlignment(TextAlignment.LEFT));
+      					
+      					sixth1Table.addCell(new Cell().add(new Paragraph("or"))
+  	      						.setFontSize(11)
+  	      						.setTextAlignment(TextAlignment.LEFT)
+  	      						.setBorder(Border.NO_BORDER));
+      					
+      					sixth1Table.addCell(new Cell().add(new Paragraph(""))
+  		     					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255, 214, 51)), 3))
+  		     		      		.setBackgroundColor(new DeviceRgb(255, 245, 204))
+  		     		      		.setTextAlignment(TextAlignment.LEFT));
+      					
+      					sixth1Table.addCell(new Cell().add(new Paragraph())
+      							.setBorder(Border.NO_BORDER));
+      					
+      					document.add(sixth1Table);
+      					
+      					Table sixth2Table = new Table(UnitValue.createPercentArray(columnWidths4)).useAllAvailableWidth();
+      					
+      							sixth2Table.addCell(new Cell().add(new Paragraph())
+      		  							.setBorder(Border.NO_BORDER));
+      							
+      							sixth2Table.addCell(new Cell().add(new Paragraph(keyinfo3))
+      			      						.setFontSize(11)
+      			      						.setTextAlignment(TextAlignment.LEFT)
+      			      						.setBorder(Border.NO_BORDER));
+      							
+      							document.add(sixth2Table);		*/
+   
+        	//closing the document
+            document.close();
 		}catch (Exception e) {
 			throw new Exception(e.getMessage());
 		}
-		
+	
 	}
+	
+	private static class TableFooterEventHandler implements IEventHandler {
+        private Table table;
 
+        public TableFooterEventHandler(Table table) {
+            this.table = table;
+        }
+
+        @Override
+        public void handleEvent(Event currentEvent) {
+            PdfDocumentEvent docEvent = (PdfDocumentEvent) currentEvent;
+            PdfDocument pdfDoc = docEvent.getDocument();
+            PdfPage page = docEvent.getPage();
+            PdfCanvas canvas = new PdfCanvas(page.newContentStreamBefore(), page.getResources(), pdfDoc);
+
+            System.out.println("======getPageSize====="+page.getPageSize().getWidth());
+            
+            new Canvas(canvas, new Rectangle(50, 0, page.getPageSize().getWidth() -100, 90))
+                    .add(table)
+                    .close();
+        }
+
+    }
 }
+

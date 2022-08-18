@@ -34,7 +34,7 @@ import org.springframework.stereotype.Repository;
 	
 	  @Query(
 	  value="SELECT cm.category_name as categoryName,pmapId,studentid,rs.email_id as emailId,categoryId,sum(score) as score,student_name as studentName "
-	  + ",test_name as testName, test_code as testCode, sub_dt as subDate ,pm.logo_path as logoPath "
+	  + ",test_name as testName, test_code as testCode, sub_dt as subDate ,pm.logo_path as logoPath,pm.url as url "
 	  +", case when sum(Ifnull(score,0)) BETWEEN cm.red_from AND cm.red_to then 'red'  "
 	  +" when sum(Ifnull(score,0)) BETWEEN cm.green_from AND cm.green_to then 'green' "
 	  +"  when sum(Ifnull(score,0)) BETWEEN cm.amber_from AND cm.amber_to then 'amber' end as colors "

@@ -21,6 +21,8 @@ public class ResultPdfResponse {
 	private String subDate;
 	private String colors;
     private String logoPath;
+    private String url;
+
 
 
 }

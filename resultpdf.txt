@@ -1,12 +1,17 @@
 #firstheading:FIRST HEADING
+firstpara1: You have been assessed for mindfulness.
 
-firstpara:Loren Ipsum…Greetings! Ansdnajnsa askjshda asjsdhdh shjagjashg sajdh sajddasjg asjgasg sahdghs ahsgdhjbdskjjf ks ashsdhjasdj dhfauskfhdaskuhb asuhsad asuhu asudh gsgksagsa sau usagugduasg asu aksugdusagdsa uas dusaugd auguasgus ugdusag suagdugsudgu shshkfjf vbchdsbbdbcb ckhjcbc hchuc sdksdbdasb. We have assessed your ability, qualitatively in term of the following <four> parameter and accordingly assessed your overall indicator.
+firstpara: Greetings! Many thanks for your participation in the screening assessment of your ability to cope with your surrounding world that impacts your emotions. The lifestyle, the work, the relationships, your own expectations from the self-etc; may stretch you, unknowingly, beyond your natural ability to cope up with these external factors.
 
-secondpara:Loren Ipsum…Greetings! Ansdnajnsa askjshda asjsdhdh shjagjashg sajdh sajddasjg asjgasg sahdghs ahsgdhjbdskjjf ks ashsdhjasdj dhfauskfhdaskuhb asuhsad asuhu asudh gsgksagsa sau usagugduasg asu aksugdusagdsa uas dusaugd auguasgus ugdusag suagdugsudgu shshkfjf vbchdsbbdbcb ckhjcbc hchuc sdksdb.The outcomes are <four> colour coded indicators for each of the above parameter.
+secondpara: We have assessed your coping up ability to retain your mindfulness, in the current situation, qualitatively, in terms of the following 
+secondpara1:  parameters and accordingly assessed your overall mindfulness indicator.
 
-interpretation: Loren Ipsum…Greetings! Ansdnajnsa askjshda asjsdhdh shjagjashg sajdh sajddasjg asjgasg sahdghs ahsgdhjbdskjjf ks ashsdhjasdj dhfauskfhdaskuhb asuhsad asuhu asudh gsgksagsa sau usagugduasg asu aksugdusagdsa uas dusaugd auguasgus ugdusag suagdugsudgu shshkfjf vbchdsbbdbcb ckhjcbc hchuc sdksdb.The outcomes are <four> colour coded indicators for each of the above parameter.
+thirdpara: Overall indicator for a participant is always the highest severity level for all of the individual parameters combined. Eg, if the participant's indicator is Red for only one of the
+thirdpara1: parameters and all other parameters are Green; then the overall indicator for the individual is still Red; in spite of the majority of the green indicators.
 
-disclaimer: Loren Ipsum…Greetings! Ansdnajnsa askjshda asjsdhdh shjagjashg sajdh sajddasjg asjgasg sahdghs ahsgdhjbdskjjf ks ashsdhjasdj dhfauskfhdaskuhb asuhsad asuhu asudh gsgksagsa sau
+interpretation:INTERPRETATION: Depending on the responses, the clinical psychology based assessment framework offers a matrix of evaluation, as regards the ability of the individuals to cope up with each of the above psychometric parameters. The outcomes are color-coded indicators for each of the above parameters.
+
+disclaimer: DISCLAIMER : The outcomes in the form of the indicators above is NOT a diagnostic report and is subject to accuracy of the participant's online responses. Diagnostic clinical reports may need a cross correlation with more parameters and in person interaction with a qualified expert.
 
 footer:Being aware about the mindfulness is good but it is only the first step. Join our partner network and interact with their experts panel to explore mind and body holistically and be happier. Visit our partner site by clicking on the logo below
 
@@ -14,6 +19,17 @@ keyinfo1:1. Purple rectangle border with light purple highlight This includes an
 keyinfo2:2. Blue highlight -These are the variables for a particular type of assessment. A type of assessment gets decided by Assessment ID and for a given assessment ID, the total no of parameters ( eg Four in the above example ), title for each parameter gets automatically decided as per Assessment Master. 
 keyinfo3:3. Yellow highlight or These are variable for individuals rows in the data source Excel. The graphical variablesare in the rectangle for each individual that represents the Numeric score derived from the Excel responses; accumulated for each assessment paramete
 
-keycolor1: Red-Normal Ability
-keycolor2: Amber-Moderately impacted ability
-keycolor3: Green-Severely impacted ability
+keycolor1: Green
+keycolor11::Normal ability
+keycolor2: Amber
+keycolor22::Moderately impacted ability
+keycolor3: Red
+keycolor33: :Severely impacted ability
+
+fourthpara: WHAT NEXT :
+fourthpara1: Overall indicator RED means that you have severely impacted your ability to cope up on AT LEAST ONE of the assessment parameters. It is advisable to consult the expert to confirm, as this test is not a clinical diagnosis but a screening assessment. Early stage intervention helps tremendously, as the medication, if needed, is short term, relatively mild medication.
+fourthpara2: This is not at all unusual and we encourage you to consult the expert.
+fourthpara3: Overall indicator AMBER means that you have moderately impacted your ability to cope up on AT LEAST ONE of the assessment parameters but none of the parameters are severely impacted. Usually counselling sessions are adequate as an intervention.
+fourthpara4: Overall indicator GREEN means that you do have ability to cope up with all the assessment parameters and there is no action other than preventive care such as adequate and appropriate physical exercise, meditation and some other techniques; is necessary to help you continue with your status.
+fourthpara5: Results of the demo assessment are not preserved by the system.
+				
