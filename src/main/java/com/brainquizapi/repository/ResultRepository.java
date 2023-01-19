@@ -93,8 +93,8 @@ import org.springframework.stereotype.Repository;
 		
 		
 		
-		@Query(value="Call InsertResndEmailQueue(?)", nativeQuery = true)
-		boolean insertInToEmailQueue(String pmapId);
+		@Query(value="Call InsertResndEmailQueue(?,?,?)", nativeQuery = true)
+		boolean insertInToEmailQueue(String pmapId,String assId,String partId);
 		
 		@Query(value="Call UpdateMailSentMappings()", nativeQuery = true)
 		boolean UpdateMailSentMappings();

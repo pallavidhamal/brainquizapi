@@ -40,6 +40,6 @@ public interface ResultService {
 	
 	boolean ResultCalculation(String pmapId);
 	
-	public boolean resendAllToEmailQueue (String pmapId);
+	public boolean resendAllToEmailQueue (String pmapId,String assId,String partId);
 
 }

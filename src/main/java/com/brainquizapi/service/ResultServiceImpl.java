@@ -1,6 +1,7 @@
 package com.brainquizapi.service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -164,9 +165,21 @@ public class ResultServiceImpl implements ResultService {
 				
 				
 				if (DateUtil.isCellDateFormatted(row.getCell(9))) {
+					
+					System.out.println("excel"+row.getCell(9).getDateCellValue());
+					
 					Date date = row.getCell(9).getDateCellValue();
-					oneExcelEntity.setSubDt(date.toString());
+					
+					System.out.println(new SimpleDateFormat("MM-dd-yyyy").format(date));
+					System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(date));
+
+					
+					System.out.println("tostring"+date.toString());
+					
+					oneExcelEntity.setSubDt(new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").format(date));
 				} else {
+					
+					System.out.println("excel else"+row.getCell(9).getDateCellValue());
 					oneExcelEntity.setSubDt(getFormattedCellValue(row.getCell(9)));
 				}
 			
@@ -550,11 +563,11 @@ public class ResultServiceImpl implements ResultService {
 	}
 
 	@Override
-	public boolean resendAllToEmailQueue(String pmapId) {
+	public boolean resendAllToEmailQueue(String pmapId,String assId,String partId) {
 		// TODO Auto-generated method stub
 		boolean flag;
 		
-		flag=resultRepository.insertInToEmailQueue(pmapId);
+		flag=resultRepository.insertInToEmailQueue(pmapId,assId,partId);
 		return flag;
 	}
 

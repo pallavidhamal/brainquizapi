@@ -101,9 +101,15 @@ public class ResultController {
 		
 	    try {
 	    	
-	    	String pamapId=partnerRequest.getPamapId();
+	    	String pamapId=partnerRequest.getPamapId();	    	
+	    	String assId=partnerRequest.getAssId();
+	    	String partId=partnerRequest.getPartId();
+
+	    	
+	    	System.out.println("resendAllToEmailQueue  pamapId"+pamapId+"--assId--"+assId+"-partId-"+partId);
+
 	    	//List<UniversityStudDocResponse> List = resultService.uploadResultFile(resultFile);
-	    	resultService.resendAllToEmailQueue(pamapId);
+	    	resultService.resendAllToEmailQueue(pamapId,assId,partId);
 			response.setRespCode(StringsUtils.Response.SUCCESS_RESP_CODE);
 			response.setRespMessage(StringsUtils.Response.SUCCESS_RESP_MSG);
 			response.setRespData(null);

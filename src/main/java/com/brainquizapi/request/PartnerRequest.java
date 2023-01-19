@@ -22,7 +22,9 @@ public class PartnerRequest {
 	private String ccemailid;
 	private Long id;
 	private String pamapId;
-	
+	private String assId;
+	private String partId;
+
 	
 
 	

@@ -170,7 +170,9 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
 			writeResultPdf(outputStream, result);
 			
 			byte[] bytes = outputStream.toByteArray();
+			logger.info("*****88*****");
 
+			
 			// construct the pdf body part
 			DataSource dataSource = new ByteArrayDataSource(bytes, "application/pdf");
 			MimeBodyPart pdfBodyPart = new MimeBodyPart();
@@ -181,6 +183,9 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
 			mimeMultipart.addBodyPart(pdfBodyPart);
 			
 			pdfBodyPart.setFileName("temp" + ".pdf");
+			
+			logger.info("*****99*****"+to);
+
 			
 			mimeMessage.saveChanges();
 
@@ -218,7 +223,8 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
 			    counter++;
 			}
 			
-			
+			logger.info("*****100*****"+to);
+
 			
 			// construct the mime message
 //               MimeMessage mimeMessage = new MimeMessage(session);
@@ -271,7 +277,8 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
 		try {
 			
 			//System.out.println("hello"+result.size());
-			
+    		logger.info("*****writeResultPdf*****");
+
 			String stuName="";
 			String testName="";
 			String testCode="";
@@ -287,10 +294,17 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
 				
 				break;
 			}
+    		logger.info("*****11*****");
 
 			
 			Properties p = new Properties();
-			p.load(new FileInputStream("resultpdf.txt"));
+		//	p.load(new FileInputStream("resultpdf.txt"));     //for local
+			
+			p.load(new FileInputStream(logoimageLocation+"/resultpdf.txt")); //for server
+			
+    		logger.info("*****22*****");
+
+			
 			String firstpara1 = p.getProperty("firstpara1");
 		    String firstpara = p.getProperty("firstpara");
 		    String secondpara = p.getProperty("secondpara");
@@ -317,6 +331,8 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
 		    String fourthpara3 = p.getProperty("fourthpara3");
 		    String fourthpara4 = p.getProperty("fourthpara4");
 		    String fourthpara5 = p.getProperty("fourthpara5");
+    		logger.info("*****33*****");
+
 		    
         String path = "C:\\Users\\Admin\\Desktop\\PdfFiles\\example"+new Date().getTime()+".pdf";
       //Creating an image Data object
@@ -345,6 +361,9 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
         PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);  
         Table table = new Table(1).useAllAvailableWidth();
 
+		logger.info("*****44*****");
+
+        
         float[] columnWidths3 = {500};
   		
   		Table lastBorderLineTable = new Table(UnitValue.createPercentArray(columnWidths3)).useAllAvailableWidth();
@@ -366,9 +385,13 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
         Cell cellfooterImage = new Cell();
         
         ImageData data1 = ImageDataFactory.create(imageFooter);
-        
+		logger.info("*****55*****");
+
         //Creating an image object
         image = new Image(data1); 
+
+        
+		logger.info("*****66*****");
 
 		cellfooterImage.setBorder(Border.NO_BORDER);
 		cellfooterImage.add(image);
@@ -719,7 +742,7 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
   		      		.setFontSize(10)
   		      		.setFont(font)
   		      		.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
- 		      		.setBackgroundColor(new DeviceRgb(255, 204, 0))
+ 		      		.setBackgroundColor(new DeviceRgb(255, 191, 0))
  		      		.setTextAlignment(TextAlignment.CENTER));
     		 }
     		 
@@ -748,6 +771,8 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
 	        
 	        }
         		 
+         System.out.println(value2.toString());
+         
           document.add(tab1Table);
         		 
         		
@@ -899,7 +924,8 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
          					.setTextAlignment(TextAlignment.CENTER));
          	
          			document.add(tab4Table);  */
-         		 
+  		logger.info("*****77*****");
+
          			
          			Table tab5Table = new Table(UnitValue.createPercentArray(columnWidths1)).useAllAvailableWidth();
          			
@@ -933,19 +959,19 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
          				
          				tab5Table.addCell(new Cell().add(new Paragraph())
              					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
-             					.setBackgroundColor(new DeviceRgb(255, 0, 0))
+             					.setBackgroundColor(new DeviceRgb(255, 0, 0))//red
              					.setTextAlignment(TextAlignment.CENTER));
          			}
-         			else if(value2.contains("Amber")) {
+         			else if(value2.contains("amber")) {
          	  	        	tab5Table.addCell(new Cell().add(new Paragraph())
                  					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
-                 					.setBackgroundColor(new DeviceRgb(60, 179, 113))
+                 					.setBackgroundColor(new DeviceRgb(255, 191, 0))//orage yellow
                  					.setTextAlignment(TextAlignment.CENTER));
          	  	        }       	  	         	
          	  	        else {
          	  	        	tab5Table.addCell(new Cell().add(new Paragraph())
-                 					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
-                 					.setBackgroundColor(new DeviceRgb(255, 204, 0))
+                 					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))                 					
+                 					.setBackgroundColor(new DeviceRgb(60, 179, 113))//green
                  					.setTextAlignment(TextAlignment.CENTER));
          	  	        }
          		/*	tab5Table.addCell(new Cell().add(new Paragraph())
@@ -1031,7 +1057,7 @@ Base64.Encoder baseEncoder = Base64.getEncoder();
           		 
      			tab7Table.addCell(new Cell().add(new Paragraph(""))
      					.setBorder(new SolidBorder(Color.convertRgbToCmyk(new DeviceRgb(255,255,255)), 3))
-     		      		.setBackgroundColor(new DeviceRgb(255, 204, 0))
+     		      		.setBackgroundColor(new DeviceRgb(255, 191, 0))
      		      		.setTextAlignment(TextAlignment.LEFT));
     		 
      			tab7Table.addCell(new Cell().add(new Paragraph(keycolor2))
